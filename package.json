@@ -1,13 +1,14 @@
 {
   "name": "graduation_showcase",
   "version": "1.0.0",
-  "main": "src/app.js",
+  "main": "dist/app.js",
   "scripts": {
-    "server": "nodemon app",
-    "start": "node src/app.js",
+    "build": "babel src -d dist",
+    "watch": "babel src -w -d dist",
+    "start": "nodemon",
+    "serve": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -18,13 +19,19 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.0",
     "sequelize": "^6.37.3"
   },
   "devDependencies": {
-    "babel-register": "^6.26.0",
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
     "nodemon": "^3.1.4",
     "sequelize-cli": "^6.6.2"
+  },
+  "nodemonConfig": {
+    "ignore": ["src"]
   }
 }

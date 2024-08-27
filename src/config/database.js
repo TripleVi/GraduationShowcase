@@ -1,13 +1,17 @@
-import 'dotenv/config'
+require('dotenv').config();
 
-export default {
+module.exports = {
   'development': {
     'host': process.env.DB_MYSQL_HOST,
     'port': process.env.DB_MYSQL_PORT,
     'database': process.env.DB_MYSQL_DATABASE,
     'username': process.env.DB_MYSQL_USERNAME,
     'password': process.env.DB_MYSQL_PASSWORD,
-    'dialect': 'mysql'
+    'dialect': 'mysql',
+    'define': {
+      'freezeTableName': true,
+      'underscored': true,
+    },
   },
   'test': {
     'username': 'root',
@@ -23,4 +27,4 @@ export default {
     'host': '127.0.0.1',
     'dialect': 'mysql'
   }
-}
+};

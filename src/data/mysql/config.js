@@ -10,10 +10,8 @@ const sequelize = new Sequelize({
   logging: false,
   define: {
     freezeTableName: true,
+    underscored: true,
   },
 })
-
-// sequelize.authenticate().then(() => console.log('hello world'))
-console.log('database connection')
 
 export default sequelize

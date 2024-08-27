@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize'
+import { DataTypes, Sequelize } from 'sequelize'
 
 const sequelize = new Sequelize({
   host: process.env.DB_MYSQL_HOST,
@@ -13,5 +13,18 @@ const sequelize = new Sequelize({
     underscored: true,
   },
 })
+
+const User = sequelize.define('User', {
+  name: {
+    type: DataTypes.STRING,
+    
+  },
+  name: {
+    type: DataTypes.STRING,
+    validate: {isEmail: true}
+  },
+})
+
+User.hasOne(User, {foreignKey: {}})
 
 export default sequelize

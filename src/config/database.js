@@ -7,6 +7,7 @@ module.exports = {
     'database': process.env.DB_MYSQL_DATABASE,
     'username': process.env.DB_MYSQL_USERNAME,
     'password': process.env.DB_MYSQL_PASSWORD,
+    'timezone': process.env.DB_MYSQL_TIMEZONE,
     'dialect': 'mysql',
     'define': {
       'freezeTableName': true,

@@ -25,6 +25,6 @@ const User = sequelize.define('User', {
   },
 })
 
-User.findOne({raw: true})
+User.update().findByPk(12, {a}).count({}).create({raw: true}, {})
 
 export default sequelize

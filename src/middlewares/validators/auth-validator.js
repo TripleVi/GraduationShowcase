@@ -1,6 +1,6 @@
 import { checkSchema, validationResult } from 'express-validator'
 
-import * as authErrors from '../../utils/errors/auth-errors'
+import * as authError from '../../utils/errors/auth-error'
 
 const checkSignIn = async (req, res, next) => {
     await checkSchema({
@@ -22,7 +22,7 @@ const checkSignIn = async (req, res, next) => {
         }, bail: true }, isLength: { options: { min: 8, max: 50 } }, escape: true },
     }, ['body']).run(req)
     const result = validationResult(req)
-    result.isEmpty() ? next() : res.status(400).send(authErrors.INVALID_CREDENTIAL)
+    result.isEmpty() ? next() : res.status(400).send(authError.INVALID_CREDENTIAL)
 }
 
 export { checkSignIn }

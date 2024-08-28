@@ -6,7 +6,7 @@ import db from '../models'
 async function signInWithUsernameAndPassword(username, password) {
     const user = await db.User.findOne({
         raw: true,
-        where: { username: username } 
+        where: { username: username }
     })
     if(user) {
         const isValid = bcrypt.compareSync(password, user.password)

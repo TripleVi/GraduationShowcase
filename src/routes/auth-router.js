@@ -1,9 +1,10 @@
 import { Router } from 'express'
 
-import { signUp } from '../controllers/auth-controller.js'
+import { signIn } from '../controllers/auth-controller'
+import { checkSignIn } from '../middlewares/validators/auth-validator'
 
 const router = Router()
 
-router.get('/sign-up', signUp)
+router.post('/sign-in', checkSignIn, signIn)
 
 export default router

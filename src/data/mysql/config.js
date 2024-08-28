@@ -25,6 +25,6 @@ const User = sequelize.define('User', {
   },
 })
 
-User.hasOne(User, {foreignKey: {}})
+User.findOne({raw: true})
 
 export default sequelize

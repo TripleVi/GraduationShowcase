@@ -1,6 +1,6 @@
 const RoleEnum = Object.freeze({
-    ADMIN: 0,
-    USER: 1,
+    ADMIN: 1,
+    USER: 2,
 })
 
 export default RoleEnum

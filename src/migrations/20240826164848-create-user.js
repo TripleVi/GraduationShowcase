@@ -35,6 +35,8 @@ module.exports = {
           },
           key: 'id',
         },
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
       },
       created_at: {
         allowNull: false,

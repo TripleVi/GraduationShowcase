@@ -1,5 +1,5 @@
 import * as authService from '../services/auth-service'
-import * as authError from '../utils/errors/auth-error'
+import * as error from '../utils/errors'
 
 const signIn = async (req, res) => {
     const username = req.body.username
@@ -11,7 +11,7 @@ const signIn = async (req, res) => {
         if(token) {
             return res.status(200).send({ token })
         }
-        res.status(401).send(authError.INVALID_CREDENTIAL)
+        res.status(401).send(error.INVALID_CREDENTIAL)
     } catch (error) {
         console.log(error)
         res.sendStatus(500)

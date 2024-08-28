@@ -11,13 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      models.Topic.belongsTo(models.Major, {
-        foreignKey: {
-          allowNull: false,
-        },
-        onDelete: 'RESTRICT',
-        onUpdate: 'CASCADE',
-      });
+      Topic.belongsTo(models.Major, { foreignKey: 'majorId' });
     }
   }
   Topic.init({

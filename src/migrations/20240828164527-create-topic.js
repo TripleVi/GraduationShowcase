@@ -23,10 +23,12 @@ module.exports = {
           },
           key: 'id',
         },
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updated_at: {
         allowNull: false,

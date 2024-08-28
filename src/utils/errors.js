@@ -7,3 +7,13 @@ export const MAJOR_EXISTS = Object.freeze({
     code: 'major-exists',
     message: 'Major already exists!'
 })
+
+export const MAJOR_NOT_EXIST = Object.freeze({
+    code: 'major-not-exist',
+    message: 'Major does not exist!'
+})
+
+export const TOPIC_EXISTS = Object.freeze({
+    code: 'topic-exists',
+    message: 'Topic already exists!'
+})

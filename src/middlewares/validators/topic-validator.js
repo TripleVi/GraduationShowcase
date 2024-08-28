@@ -1,11 +1,12 @@
 import { checkSchema, validationResult } from 'express-validator'
 
-const checkPostMajor = async (req, res, next) => {
+const checkPostTopic = async (req, res, next) => {
     await checkSchema({
         name: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
             // const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_.]+$/ig
             return true
         }, bail: true }, isLength: { options: { min: 3, max: 24 } }, escape: true },
+        // majorId: { notEmpty },
     }, ['body']).run(req)
     const result = validationResult(req)
     result.isEmpty() 
@@ -13,6 +14,6 @@ const checkPostMajor = async (req, res, next) => {
         : res.status(400).send({ errors: result.array() })
 }
 
-const checkPutMajor = async (req, res, next) => checkPostMajor(req, res, next)
+const checkPutTopic = async (req, res, next) => checkPostTopic(req, res, next)
 
-export { checkPostMajor, checkPutMajor }
+export { checkPostTopic, checkPutTopic }

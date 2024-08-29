@@ -39,11 +39,8 @@ const editTopic = async (req, res) => {
         if(!topic) {
             return res.sendStatus(404)
         }
-        if(topic.name === newTopic.name) {
-            return res.sendStatus(204)
-        }
         topic = await topicService.getTopicByName(newTopic.name)
-        if(topic) {
+        if(topic && topic.id != id) {
             return res.status(409).send(error.TOPIC_EXISTS)
         }
         const isSuccess = await topicService.updateTopic(id, newTopic)
@@ -62,7 +59,9 @@ const deleteTopic = async (req, res) => {
             return res.sendStatus(404)
         }
         const isSuccess = await topicService.removeTopic(id)
-        res.sendStatus(isSuccess ? 204 : 409)
+        isSuccess 
+            ? res.sendStatus(204) 
+            : res.status(409).send(error.TOPIC_HAS_PROJECTS)
     } catch (error) {
         console.log(error)
         res.sendStatus(500)

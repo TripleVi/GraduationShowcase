@@ -38,6 +38,10 @@ async function updateTopic(id, topic) {
 }
 
 async function removeTopic(id) {
+    const amount = await db.Project.count({ where: { topicId: id } })
+    if(amount > 0) {
+        return false
+    }
     const affected = await db.Topic.destroy({
         where: { id },
     })

@@ -30,9 +30,13 @@ const editMajor = async (req, res) => {
     try {
         const newMajor = req.body
         const id = req.params.id
-        const major = await majorService.getMajorById(id)
+        let major = await majorService.getMajorById(id)
         if(!major) {
             return res.sendStatus(404)
+        }
+        major = await majorService.getMajorByName(newMajor.name)
+        if(major && major.id != id) {
+            return res.status(409).send(error.MAJOR_EXISTS)
         }
         const isSuccess = await majorService.updateMajor(id, newMajor)
         res.sendStatus(isSuccess ? 204 : 409)
@@ -50,7 +54,9 @@ const deleteMajor = async (req, res) => {
             return res.sendStatus(404)
         }
         const isSuccess = await majorService.removeMajor(id)
-        res.sendStatus(isSuccess ? 204 : 409)
+        isSuccess 
+            ? res.sendStatus(204) 
+            : res.status(409).send(error.MAJOR_HAS_TOPICS)
     } catch (error) {
         console.log(error)
         res.sendStatus(500)

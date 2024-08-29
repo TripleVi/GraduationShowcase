@@ -37,6 +37,10 @@ export async function updateMajor(id, major) {
 }
 
 export async function removeMajor(id) {
+    const amount = await db.Topic.count({ where: { majorId: id } })
+    if(amount > 0) {
+        return false
+    }
     const affected = await db.Major.destroy({
         where: { id },
     })

@@ -17,3 +17,13 @@ export const TOPIC_EXISTS = Object.freeze({
     code: 'topic-exists',
     message: 'Topic already exists!'
 })
+
+export const MAJOR_HAS_TOPICS = Object.freeze({
+    code: 'major-has-topics',
+    message: 'Major contains topics!'
+})
+
+export const TOPIC_HAS_PROJECTS = Object.freeze({
+    code: 'topic-has-projects',
+    message: 'Topic contains projects!'
+})

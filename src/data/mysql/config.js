@@ -24,5 +24,3 @@ const User = sequelize.define('User', {
     validate: {isEmail: true}
   },
 })
-
-User.update()

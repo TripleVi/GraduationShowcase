@@ -9,11 +9,19 @@ module.exports = {
         created_at: new Date(),
       },
       {
-        name: 'Mobile',
+        name: 'mobile',
         created_at: new Date(),
       },
       {
         name: 'blockchain',
+        created_at: new Date(),
+      },
+      {
+        name: 'ai',
+        created_at: new Date(),
+      },
+      {
+        name: 'fitness',
         created_at: new Date(),
       },
     ]);

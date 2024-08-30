@@ -2,39 +2,42 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Topic', {
+    await queryInterface.createTable('Photo', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      url: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       name: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
+        allowNull: false
       },
-      major_id: {
+      size: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      mime_type: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      project_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'major',
+          model: 'project',
           key: 'id'
         },
         onDelete: 'RESTRICT',
         onUpdate: 'CASCADE'
-      },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      },
-      updated_at: {
-        allowNull: false,
-        type: Sequelize.DATE
       }
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Topic');
+    await queryInterface.dropTable('Photo');
   }
 };

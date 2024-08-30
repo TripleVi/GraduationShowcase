@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Topic', {
+    await queryInterface.createTable('Author', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,14 +11,18 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
+        allowNull: false
       },
-      major_id: {
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+      },
+      project_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'major',
+          model: 'project',
           key: 'id'
         },
         onDelete: 'RESTRICT',
@@ -26,7 +30,7 @@ module.exports = {
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
       updated_at: {
         allowNull: false,
@@ -35,6 +39,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Topic');
+    await queryInterface.dropTable('Author');
   }
 };

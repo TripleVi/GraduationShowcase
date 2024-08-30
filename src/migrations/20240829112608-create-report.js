@@ -21,17 +21,9 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      mimeType: {
+      mime_type: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updated_at: {
-        allowNull: false,
-        type: Sequelize.DATE
       }
     });
   },

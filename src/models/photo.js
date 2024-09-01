@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Photo.belongsTo(models.Project, { foreignKey: 'projectId' })
+      Photo.belongsTo(models.Project)
     }
   }
   Photo.init({
@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Photo',
     timestamps: false,
+    name: {
+      singular: 'photo',
+      plural: 'photos'
+    },
   });
   return Photo;
 };

@@ -24,3 +24,5 @@ const User = sequelize.define('User', {
     validate: {isEmail: true}
   },
 })
+
+User.findAll({include: {}})

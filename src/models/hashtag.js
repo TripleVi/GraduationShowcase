@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Hashtag',
     updatedAt: false,
+    name: {
+      singular: 'hashtag',
+      plural: 'hashtags'
+    },
   });
   return Hashtag;
 };

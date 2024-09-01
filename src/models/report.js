@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Report.hasOne(models.Project, { foreignKey: 'reportId' })
+      Report.belongsTo(models.Project)
     }
   }
   Report.init({
@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Report',
     timestamps: false,
+    name: {
+      singular: 'report',
+      plural: 'reports'
+    },
   });
   return Report;
 };

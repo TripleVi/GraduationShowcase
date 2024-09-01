@@ -11,17 +11,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      ProjectHashtag.belongsTo(models.Project, { foreignKey: 'projectId' })
-      ProjectHashtag.belongsTo(models.Hashtag, { foreignKey: 'hashtagId' })
+      ProjectHashtag.belongsTo(models.Project)
+      ProjectHashtag.belongsTo(models.Hashtag)
     }
   }
   ProjectHashtag.init({
-    project_id: DataTypes.INTEGER,
-    hashtag_id: DataTypes.INTEGER
+    
   }, {
     sequelize,
     modelName: 'ProjectHashtag',
+    tableName: 'Project_Hashtag',
     timestamps: false,
+    name: {
+      singular: 'projectHashtag',
+      plural: 'projectHashtags'
+    },
   });
   return ProjectHashtag;
 };

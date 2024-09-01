@@ -24,7 +24,17 @@ module.exports = {
       mime_type: {
         type: Sequelize.STRING,
         allowNull: false,
-      }
+      },
+      project_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'project',
+          key: 'id'
+        },
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      },
     });
   },
   async down(queryInterface, Sequelize) {

@@ -9,6 +9,7 @@ module.exports = {
         name: 'report.pdf',
         size: 5000,
         mime_type: 'application/pdf',
+        project_id: 1,
       }
     ]);
   },

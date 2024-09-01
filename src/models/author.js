@@ -11,16 +11,19 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Author.belongsTo(models.Project, { foreignKey: 'projectId' })
+      Author.belongsTo(models.Project)
     }
   }
   Author.init({
     name: DataTypes.STRING,
     email: DataTypes.STRING,
-    project_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Author',
+    name: {
+      singular: 'author',
+      plural: 'authors'
+    },
   });
   return Author;
 };

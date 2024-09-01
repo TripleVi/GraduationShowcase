@@ -44,16 +44,6 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'CASCADE'
       },
-      report_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'report',
-          key: 'id'
-        },
-        onDelete: 'RESTRICT',
-        onUpdate: 'CASCADE'
-      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE

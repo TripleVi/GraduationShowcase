@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Project.hasMany(models.Author, { foreignKey: 'projectId' })
-      Project.belongsTo(models.Report, { foreignKey: 'reportId' })
-      Project.hasMany(models.Photo, { foreignKey: 'projectId' })
+      Project.hasMany(models.Author)
+      Project.hasOne(models.Report, { foreignKey: 'projectId' })
+      Project.hasMany(models.Photo)
       Project.belongsToMany(models.Hashtag, { through: models.ProjectHashtag })
     }
   }
@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Project',
+    name: {
+      singular: 'project',
+      plural: 'projects'
+    },
   });
   return Project;
 };

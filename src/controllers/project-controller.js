@@ -5,4 +5,9 @@ const fetchProjects = async (req, res) => {
     res.status(200).send(projects)
 }
 
-export { fetchProjects }
+const createProject = async (req, res) => {
+    console.log(req.files)
+    res.status(201).send('hello world')
+}
+
+export { fetchProjects, createProject }

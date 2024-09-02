@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Project.belongsTo(models.Topic)
       Project.hasMany(models.Author)
       Project.hasOne(models.Report, { foreignKey: 'projectId' })
       Project.hasMany(models.Photo)

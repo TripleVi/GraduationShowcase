@@ -18,8 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     url: DataTypes.STRING,
     name: DataTypes.STRING,
     size: DataTypes.INTEGER,
-    mime_type: DataTypes.STRING,
-    project_id: DataTypes.INTEGER
+    mimeType: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Photo',

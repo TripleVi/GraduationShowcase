@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Topic.belongsTo(models.Major);
+      Topic.hasMany(models.Project)
     }
   }
   Topic.init({

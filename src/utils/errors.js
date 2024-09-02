@@ -27,3 +27,4 @@ export const TOPIC_HAS_PROJECTS = Object.freeze({
     code: 'topic-has-projects',
     message: 'Topic contains projects!'
 })
+

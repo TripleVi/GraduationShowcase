@@ -2,12 +2,8 @@ import db from '../models'
 
 async function getProjects() {
     const projects = await db.Project.findAll({
-        attributes: { exclude: ['createdAt', 'updatedAt'] },
+        attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
         include: [
-            {
-                model: db.Author,
-                attributes: { exclude: ['projectId'] },
-            },
             {
                 model: db.Author,
                 attributes: { exclude: ['createdAt', 'updatedAt', 'projectId'] },
@@ -15,6 +11,14 @@ async function getProjects() {
             {
                 model: db.Hashtag,
                 through: { attributes: [] },
+            },
+            {
+                model: db.Photo,
+                attributes: { exclude: ['projectId'] },
+            },
+            {
+                model: db.Report,
+                attributes: { exclude: ['projectId'] },
             },
         ],
     })
@@ -29,4 +33,4 @@ async function addProject() {
 
 }
 
-export { getProjects }
+export { getProjects, addProject }

@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   Report.init({
     url: DataTypes.STRING,
     name: DataTypes.STRING,
-    size: DataTypes.INTEGER,
+    size: DataTypes.STRING,
     mimeType: DataTypes.STRING
   }, {
     sequelize,

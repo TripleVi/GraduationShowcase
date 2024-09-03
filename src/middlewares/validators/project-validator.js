@@ -1,28 +1,43 @@
-import { checkSchema, validationResult } from 'express-validator'
-
-import * as error from '../../utils/errors'
+import { checkSchema, matchedData, validationResult } from 'express-validator'
 
 const checkPostProject = async (req, res, next) => {
+    console.log(req.body)
     await checkSchema({
-        username: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
-            // Username must contain valid characters and at least one letter.
-            const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_.]+$/ig
+        title: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
+            const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_. ]+$/ig
             if(!pattern.test(value)) {
-                throw new Error('Invalid username')
+                throw new Error('Invalid character')
             }
             return true
-        }, bail: true }, isLength: { options: { min: 3, max: 24 } }, escape: true },
-        password: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
-            // Password must contain valid characters and at least one lowercase letter, one uppercase letter, one digit, and one special character.
-            const pattern2 = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!"#$%&'()*+,-./:;<=>?@[\]^_{|}~])[A-Za-z0-9!"#$%&'()*+,-./:;<=>?@[\]^_{|}~]+$/ig
-            if(!pattern2.test(value)) {
-                throw new Error('Invalid password')
+        }, bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        description: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
+            const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_. ()]+$/ig
+            if(!pattern.test(value)) {
+                throw new Error('Invalid character')
             }
             return true
-        }, bail: true }, isLength: { options: { min: 8, max: 50 } }, escape: true },
+        }, bail: true }, isLength: { options: { min: 3, max: 65000 } }, escape: true },
+        year: { isNumeric: { options: { no_symbols: true } } },
+        videoId: { optional: true, trim: true, notEmpty: { bail: true } },
+        topicId: { isNumeric: { options: { no_symbols: true } } },
+        hashtags: { isArray: true },
+        'hashtags.*': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
+        authors: { isArray: true },
+        'authors.*.name': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        'authors.*.email': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        'authors.*.avatarUrl': { optional: true, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
     }, ['body']).run(req)
+
     const result = validationResult(req)
-    result.isEmpty() ? next() : res.status(400).send(error.INVALID_CREDENTIAL)
+    if(!result.isEmpty()) {
+        return res.status(400).send({ errors: result.array() })
+    }
+    const obj = matchedData(req, { locations: ['body'], includeOptionals: true })
+    const objKeys = Object.keys(obj)
+    const fields = new Set([...objKeys, ...Object.keys(req.body)])
+    fields.size === objKeys.length
+        ? next() 
+        : res.sendStatus(400)
 }
 
 export { checkPostProject }

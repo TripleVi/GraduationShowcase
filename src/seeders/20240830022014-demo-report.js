@@ -7,7 +7,7 @@ module.exports = {
       {
         url: 'https://media-cdn-v2.laodong.vn/storage/newsportal/2024/6/19/1354832/Rose-Blackpink-1A.jpeg?w=660',
         name: 'report.pdf',
-        size: 5000,
+        size: '5000',
         mime_type: 'application/pdf',
         project_id: 1,
       }

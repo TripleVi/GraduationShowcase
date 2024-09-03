@@ -12,16 +12,24 @@ function uploadProjectFiles(req, res, next) {
         }),
         limits: {
             fileSize: 1024 * 1024 * 2,
-            files: 21,
+            // files: 21,
             fields: 1,
         }
     }).fields([
         { name: 'photos', maxCount: 20 },
         { name: 'report', maxCount: 1 },
+        { name: 'authors' },
     ])
     upload(req, res, err => {
         if(!err) {
-            return next()
+            try {
+                req.body = JSON.parse(req.body.project)
+                console.log(req.body.authors.length)
+                next()
+            } catch (error) {
+                res.sendStatus(400)
+            }
+            return
         }
         if(!(err instanceof MulterError)) {
             console.log(err)

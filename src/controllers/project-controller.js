@@ -6,7 +6,12 @@ const fetchProjects = async (req, res) => {
 }
 
 const createProject = async (req, res) => {
-    console.log(req.files)
+    console.log(req.file)
+    // try {
+    //     await projectService.addProject(req.body)
+    // } catch (error) {
+    //     console.log(error.code)
+    // }
     res.status(201).send('hello world')
 }
 

@@ -1,3 +1,4 @@
+import { Op } from 'sequelize'
 import db from '../models'
 
 async function getProjects() {
@@ -29,8 +30,40 @@ async function getProjects() {
     })
 }
 
-async function addProject() {
-
+async function addProject(project) {
+    const { hashtags, authors, ...values } = project
+    console.log(authors)
+    return
+    const topic = await db.Topic.findByPk(values.topicId)
+    if(!topic) {
+        throw { code: 'MAJOR_NOT_EXIST' }
+    }
+    const transaction = await db.sequelize.transaction()
+    try {
+        // const created = await db.Project.create(values, { transaction })
+        const result = await db.Hashtag.findAll({
+            where: { name: { [Op.or]: hashtags } },
+            raw: true,
+        })
+        const names = result.map(h => h.name)
+        const hashtagPromises = []
+        for (const name of hashtags) {
+            if(!names.includes(h)) {
+                hashtagPromises.push(
+                    db.Hashtag.create({ name }, { transaction })
+                )
+            }
+        }
+        const temp = await Promise.all(hashtagPromises)
+        console.log(result)
+        
+        // console.log(created)
+        await transaction.commit()
+    } catch (error) {
+        console.log('hello world')
+        await transaction.rollback()
+        throw error
+    }
 }
 
 export { getProjects, addProject }

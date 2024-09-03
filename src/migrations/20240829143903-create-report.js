@@ -18,7 +18,7 @@ module.exports = {
         allowNull: false,
       },
       size: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       mime_type: {

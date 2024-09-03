@@ -25,4 +25,4 @@ const User = sequelize.define('User', {
   },
 })
 
-User.findAll({include: {}})
+User.create()

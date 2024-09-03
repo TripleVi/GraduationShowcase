@@ -18,6 +18,10 @@ module.exports = {
         allowNull: false,
         unique: true
       },
+      avatar_url: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       project_id: {
         type: Sequelize.INTEGER,
         allowNull: false,

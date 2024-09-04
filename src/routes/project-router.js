@@ -7,6 +7,6 @@ import * as validator from '../middlewares/validators/project-validator'
 const router = Router()
 
 router.get('/', controller.fetchProjects)
-router.post('/', uploadProjectFiles, validator.checkPostProject, controller.createProject)
+router.post('/', controller.createProject)
 
 export default router

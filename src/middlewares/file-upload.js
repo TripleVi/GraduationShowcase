@@ -24,7 +24,10 @@ function uploadProjectFiles(req, res, next) {
         if(!err) {
             try {
                 req.body = JSON.parse(req.body.project)
-                console.log(req.body.authors.length)
+                // console.log(req.files.authors.length)
+                // if(req.body.authors.length != req.files.authors.length) {
+                //     return res.sendStatus(400)
+                // }
                 next()
             } catch (error) {
                 res.sendStatus(400)

@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   Project.init({
     title: DataTypes.STRING,
     description: DataTypes.TEXT,
-    year: DataTypes.INTEGER,
+    year: DataTypes.SMALLINT,
     videoId: DataTypes.STRING,
     views: DataTypes.INTEGER,
     likes: DataTypes.INTEGER

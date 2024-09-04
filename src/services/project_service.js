@@ -32,8 +32,6 @@ async function getProjects() {
 
 async function addProject(project) {
     const { hashtags, authors, ...values } = project
-    console.log(authors)
-    return
     const topic = await db.Topic.findByPk(values.topicId)
     if(!topic) {
         throw { code: 'MAJOR_NOT_EXIST' }

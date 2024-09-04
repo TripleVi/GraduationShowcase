@@ -22,7 +22,7 @@ const checkPostProject = async (req, res, next) => {
         topicId: { isNumeric: { options: { no_symbols: true } } },
         hashtags: { isArray: true },
         'hashtags.*': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
-        authors: { isArray: true },
+        authors: { isArray: { options: { min: 1 } } },
         'authors.*.name': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
         'authors.*.email': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
         'authors.*.avatarUrl': { optional: true, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },

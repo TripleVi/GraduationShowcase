@@ -10,6 +10,7 @@ module.exports = {
         year: 2024,
         video_id: 'Ey9OpEQ1plY',
         topic_id: 1,
+        report_id: 1,
         created_at: new Date(),
         updated_at: new Date(),
       }

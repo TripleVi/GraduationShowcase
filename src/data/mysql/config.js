@@ -23,6 +23,6 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     validate: {isEmail: true}
   },
-})
+}, {initialAutoIncrement: false})
 
-User.create()
+User.findAll({attributes: {}, include: [{}]})

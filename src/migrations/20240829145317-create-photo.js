@@ -9,27 +9,21 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      url: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      size: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      mime_type: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
       project_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'project',
+          key: 'id'
+        },
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      },
+      file_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'file',
           key: 'id'
         },
         onDelete: 'RESTRICT',

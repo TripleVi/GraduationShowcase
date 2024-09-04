@@ -18,9 +18,14 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      avatar_url: {
-        type: Sequelize.STRING,
-        allowNull: true
+      avatar_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'file',
+          key: 'id'
+        },
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
       },
       project_id: {
         type: Sequelize.INTEGER,

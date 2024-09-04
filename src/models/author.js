@@ -12,12 +12,12 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Author.belongsTo(models.Project)
+      Author.belongsTo(models.File, { as: 'avatar' })
     }
   }
   Author.init({
     name: DataTypes.STRING,
     email: DataTypes.STRING,
-    avatarUrl: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Author',

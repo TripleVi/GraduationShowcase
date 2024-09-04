@@ -7,7 +7,15 @@ module.exports = {
       {
         name: 'Vu Van Vuong',
         email: 'vuongvu0611@gmail.com',
-        avatar_url: 'https://i.mydramalist.com/66L5p_5c.jpg',
+        avatar_id: 5,
+        project_id: 1,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        name: 'Rosie Cheeks',
+        email: 'vuongvvgch190692@gmail.com',
+        avatar_id: 6,
         project_id: 1,
         created_at: new Date(),
         updated_at: new Date(),

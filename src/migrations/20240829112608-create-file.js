@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Report', {
+    await queryInterface.createTable('File', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,8 +12,13 @@ module.exports = {
       url: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      original_name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -25,19 +30,9 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      project_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'project',
-          key: 'id'
-        },
-        onDelete: 'RESTRICT',
-        onUpdate: 'CASCADE'
-      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Report');
+    await queryInterface.dropTable('File');
   }
 };

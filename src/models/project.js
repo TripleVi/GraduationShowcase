@@ -12,8 +12,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Project.belongsTo(models.Topic)
+      Project.belongsTo(models.File, { as: 'report' })
       Project.hasMany(models.Author)
-      Project.hasOne(models.Report, { foreignKey: 'projectId' })
       Project.hasMany(models.Photo)
       Project.belongsToMany(models.Hashtag, { through: models.ProjectHashtag })
     }

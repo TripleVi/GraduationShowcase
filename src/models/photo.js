@@ -12,13 +12,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Photo.belongsTo(models.Project)
+      Photo.belongsTo(models.File)
     }
   }
   Photo.init({
-    url: DataTypes.STRING,
-    name: DataTypes.STRING,
-    size: DataTypes.STRING,
-    mimeType: DataTypes.STRING,
+    
   }, {
     sequelize,
     modelName: 'Photo',

@@ -66,4 +66,34 @@ function uploadProjectFiles(req, res, next) {
     })
 }
 
-export { uploadProjectFiles }
+const uploadFiles = multer({
+    storage: diskStorage({
+        filename: (req, file, cb) => {
+            const extension = file.originalname.split('.').at(-1)
+            const unique = Date.now() + '-' + Math.round(Math.random() * 1E9)
+            const filename = unique + '.' + extension
+            cb(null, filename)
+        },
+    }),
+    limits: {
+        fileSize: 1024 * 1024 * 2,
+        fields: 0,
+    }
+}).array('data', 20)
+
+const uploadProjectPhotos = multer({
+    storage: diskStorage({
+        filename: (req, file, cb) => {
+            const extension = file.originalname.split('.').at(-1)
+            const unique = Date.now() + '-' + Math.round(Math.random() * 1E9)
+            const filename = unique + '.' + extension
+            cb(null, filename)
+        },
+    }),
+    limits: {
+        fileSize: 1024 * 1024 * 2,
+        fields: 0,
+    }
+}).array('photos', 20)
+
+export { uploadProjectFiles, uploadFiles, uploadProjectPhotos }

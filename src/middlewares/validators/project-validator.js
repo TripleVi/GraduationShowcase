@@ -1,7 +1,8 @@
 import { checkSchema, matchedData, validationResult } from 'express-validator'
 
 const checkPostProject = async (req, res, next) => {
-    console.log(req.body)
+    const avatarCount = req.files.avatars.length
+    const count = Array(avatarCount).fill(1)
     await checkSchema({
         title: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
             const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_. ]+$/ig
@@ -20,12 +21,24 @@ const checkPostProject = async (req, res, next) => {
         year: { isNumeric: { options: { no_symbols: true } } },
         videoId: { optional: true, trim: true, notEmpty: { bail: true } },
         topicId: { isNumeric: { options: { no_symbols: true } } },
-        hashtags: { isArray: true },
+        hashtags: { isArray: { options: { max: 5 }, bail: true }, custom: { options: values => {
+            const uniqueValues = new Set(values)
+            if(uniqueValues.size != values.length) {
+                throw new Error('Duplicate values')
+            }
+            return true
+        } } },
         'hashtags.*': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
-        authors: { isArray: { options: { min: 1 } } },
+        authors: { isArray: { options: { min: avatarCount } }, custom: { options: values => {
+            const uniqueValues = new Set(values.map(v => v.email))
+            if(uniqueValues.size != values.length) {
+                throw new Error('Duplicate emails')
+            }
+            return true
+        } } },
         'authors.*.name': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
         'authors.*.email': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
-        'authors.*.avatarUrl': { optional: true, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        'authors.*.fileIndex': { optional: true, isInt: { options: { min: 0, max: avatarCount-1 }, bail: true }, custom: { options: value => !--count[value], bail: true } },
     }, ['body']).run(req)
 
     const result = validationResult(req)

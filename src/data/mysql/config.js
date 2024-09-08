@@ -25,4 +25,4 @@ const User = sequelize.define('User', {
   },
 }, {initialAutoIncrement: false})
 
-User.findAll({attributes: {}, include: [{}]})
+User.findAll({tr})

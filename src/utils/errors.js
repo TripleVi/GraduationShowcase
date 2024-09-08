@@ -3,6 +3,11 @@ export const INVALID_CREDENTIAL = Object.freeze({
     message: 'Username or password is not correct!'
 })
 
+export const EMAIL_EXISTS = Object.freeze({
+    code: 'EMAIL_EXISTS',
+    message: 'Email already exists!'
+})
+
 export const MAJOR_EXISTS = Object.freeze({
     code: 'major-exists',
     message: 'Major already exists!'
@@ -14,8 +19,13 @@ export const MAJOR_NOT_EXIST = Object.freeze({
 })
 
 export const TOPIC_EXISTS = Object.freeze({
-    code: 'topic-exists',
+    code: 'TOPIC_EXISTS',
     message: 'Topic already exists!'
+})
+
+export const TOPIC_NOT_EXIST = Object.freeze({
+    code: 'TOPIC_NOT_EXIST',
+    message: 'Topic does not exist!'
 })
 
 export const MAJOR_HAS_TOPICS = Object.freeze({

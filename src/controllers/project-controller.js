@@ -1,4 +1,5 @@
-import * as projectService from '../services/project_service'
+import * as projectService from '../services/project-service'
+import * as errors from '../utils/errors'
 
 const fetchProjects = async (req, res) => {
     const projects = await projectService.getProjects()
@@ -6,28 +7,23 @@ const fetchProjects = async (req, res) => {
 }
 
 const createProject = async (req, res) => {
+    const project = req.body
+    const files = req.files
     try {
-        // const created = await projectService.addProject(req.body)
-        // res.status(201).send(created)
-        const headers = {
-            'Content-Type': 'text/event-stream',
-            'Connection': 'keep-alive',
-            'Cache-Control': 'no-cache'
-        }
-        let i = 0
-        res.set(headers)
-        res.status(200)
-        const intervalId = setInterval(() => {
-            res.write(JSON.stringify({status: i++}))
-        }, 1000)
-        setTimeout(() => {
-            clearInterval(intervalId);
-            res.end()
-        }, 10000)
-
+        const created = await projectService.addProject(project, files)
+        res.status(201).send(created)
     } catch (error) {
         console.log(error)
-        res.sendStatus(500)
+        switch (error.code) {
+            case 'TOPIC_NOT_EXIST':
+                res.status(409).send(errors.TOPIC_NOT_EXIST)
+                break
+            case 'EMAIL_EXISTS':
+                res.status(400).send(errors.EMAIL_EXISTS)
+                break
+            default:
+                res.sendStatus(500)
+        }
     }
 }
 

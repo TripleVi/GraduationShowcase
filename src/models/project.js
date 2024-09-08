@@ -21,10 +21,10 @@ module.exports = (sequelize, DataTypes) => {
   Project.init({
     title: DataTypes.STRING,
     description: DataTypes.TEXT,
-    year: DataTypes.SMALLINT,
+    year: DataTypes.SMALLINT.UNSIGNED,
     videoId: DataTypes.STRING,
-    views: DataTypes.INTEGER,
-    likes: DataTypes.INTEGER
+    views: DataTypes.INTEGER.UNSIGNED,
+    likes: DataTypes.INTEGER.UNSIGNED
   }, {
     sequelize,
     modelName: 'Project',

@@ -12,22 +12,18 @@ function uploadProjectFiles(req, res, next) {
         }),
         limits: {
             fileSize: 1024 * 1024 * 2,
-            // files: 21,
+            files: 31,
             fields: 1,
         }
     }).fields([
         { name: 'photos', maxCount: 20 },
         { name: 'report', maxCount: 1 },
-        { name: 'authors' },
+        { name: 'avatars', maxCount: 10 },
     ])
     upload(req, res, err => {
         if(!err) {
             try {
                 req.body = JSON.parse(req.body.project)
-                // console.log(req.files.authors.length)
-                // if(req.body.authors.length != req.files.authors.length) {
-                //     return res.sendStatus(400)
-                // }
                 next()
             } catch (error) {
                 res.sendStatus(400)

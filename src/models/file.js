@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'File',
-    timestamps: false,
+    updatedAt: false,
     name: {
       singular: 'file',
       plural: 'files'

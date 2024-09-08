@@ -18,19 +18,16 @@ module.exports = {
         allowNull: false,
       },
       year: {
-        type: Sequelize.SMALLINT,
+        type: Sequelize.SMALLINT.UNSIGNED,
         allowNull: false,
       },
-      video_id: {
-        type: Sequelize.STRING
-      },
       views: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         defaultValue: 0
       },
       likes: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         defaultValue: 0
       },

@@ -42,6 +42,21 @@ const editProject = async (req, res) => {
     }
 }
 
+const editReport = async (req, res) => {
+    const id = req.params.id
+    const file = req.file
+    try {
+        const isSuccess = await projectService.updateReport(id, file)
+        res.sendStatus(isSuccess ? 204 : 409)
+    } catch (error) {
+        console.log(error)
+        if(error.code == 'PROJECT_NOT_EXIST') {
+            return res.sendStatus(404)
+        }
+        res.sendStatus(500)
+    }
+}
+
 const deleteProject = async (req, res) => {
     res.sendStatus(200)
 }
@@ -62,4 +77,4 @@ const deletePhotos = async (req, res) => {
     res.sendStatus(200)
 }
 
-export { fetchProjects, createProject, editProject, deleteProject, createPhotos, deletePhotos }
+export { fetchProjects, createProject, editProject, editReport, deleteProject, createPhotos, deletePhotos }

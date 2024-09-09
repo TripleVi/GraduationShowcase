@@ -195,6 +195,34 @@ async function updateProject(id, project) {
     }
 }
 
+async function updateReport(id, file) {
+    const project = await db.Project.findByPk(id)
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    const transaction = await db.sequelize.transaction()
+    try {
+        const response = await storageService.uploadFromLocal(file.path)
+        const newReport = {
+            url: response[0].metadata.selfLink,
+            name: file.filename,
+            originalName: file.originalname,
+            size: file.size,
+            mimeType: file.mimetype,
+        }
+        const oldReport = await project.getReport({ transaction })
+        await project.createReport(newReport, { transaction })
+        await storageService.deleteFile(oldReport.name)
+        await oldReport.destroy({ transaction })
+
+        await transaction.commit()
+        return true
+    } catch (error) {
+        await transaction.rollback()
+        throw error
+    }
+}
+
 async function addPhotos(projectId, files) {
     const bucket = getStorage().bucket()
     const createdIds = []
@@ -222,4 +250,4 @@ async function addPhotos(projectId, files) {
     return photos
 }
 
-export { getProjects, addProject, updateProject, addPhotos }
+export { getProjects, addProject, updateProject, updateReport, addPhotos }

@@ -62,6 +62,10 @@ function uploadProjectFiles(req, res, next) {
 }
 
 function uploadReport(req, res, next) {
+    req.params.id = req.params.id.trim()
+    if(!req.params.id) {
+        return res.sendStatus(400)
+    }
     const upload = multer({
         storage: diskStorage({
             filename: (req, file, cb) => {
@@ -74,18 +78,12 @@ function uploadReport(req, res, next) {
         limits: {
             fileSize: 1024 * 1024 * 2,
             files: 1,
-            fields: 1,
+            fields: 0,
         }
     }).single('report')
     upload(req, res, err => {
         if(!err) {
-            try {
-                req.body = JSON.parse(req.body.project)
-                next()
-            } catch (error) {
-                res.sendStatus(400)
-            }
-            return
+            return next()
         }
         if(!(err instanceof MulterError)) {
             console.log(err)

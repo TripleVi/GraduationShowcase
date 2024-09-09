@@ -21,8 +21,8 @@ const User = sequelize.define('User', {
   },
   name: {
     type: DataTypes.STRING,
-    validate: {isEmail: true}
   },
-}, {initialAutoIncrement: false})
+}, {omitNull, initialAutoIncrement: false})
 
-User.findAll({tr})
+const user = await User.create()
+user.update()

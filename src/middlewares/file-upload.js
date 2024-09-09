@@ -56,7 +56,59 @@ function uploadProjectFiles(req, res, next) {
                 break
             default:
                 error = { code, message }
+        }
+        res.status(400).send(error)
+    })
+}
+
+function uploadReport(req, res, next) {
+    const upload = multer({
+        storage: diskStorage({
+            filename: (req, file, cb) => {
+                const extension = file.originalname.split('.').at(-1)
+                const unique = Date.now() + '-' + Math.round(Math.random() * 1E9)
+                const filename = unique + '.' + extension
+                cb(null, filename)
+            },
+        }),
+        limits: {
+            fileSize: 1024 * 1024 * 2,
+            files: 1,
+            fields: 1,
+        }
+    }).single('report')
+    upload(req, res, err => {
+        if(!err) {
+            try {
+                req.body = JSON.parse(req.body.project)
+                next()
+            } catch (error) {
+                res.sendStatus(400)
+            }
+            return
+        }
+        if(!(err instanceof MulterError)) {
+            console.log(err)
+            return res.sendStatus(500)
+        }
+        const { code, message, field } = err
+        let error
+        switch (code) {
+            case 'LIMIT_FIELD_COUNT':
+                error = { code, message }
                 break
+            case 'LIMIT_FILE_COUNT':
+                error = { code, message }
+                break
+            case 'LIMIT_UNEXPECTED_FILE':
+                error = { code, field, message }
+                break
+            case 'LIMIT_FILE_SIZE':
+                error = { code, field }
+                error.message = 'Maximum file size is 10 MB'
+                break
+            default:
+                error = { code, message }
         }
         res.status(400).send(error)
     })
@@ -92,4 +144,4 @@ const uploadProjectPhotos = multer({
     }
 }).array('photos', 20)
 
-export { uploadProjectFiles, uploadFiles, uploadProjectPhotos }
+export { uploadProjectFiles, uploadReport, uploadFiles, uploadProjectPhotos }

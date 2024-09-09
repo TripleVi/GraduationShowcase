@@ -157,6 +157,44 @@ async function addProject(project, files) {
     }
 }
 
+async function updateProject(id, project) {
+    const currentProject = await db.Project.findByPk(id)
+    if(!currentProject) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    const { hashtags, ...values } = project
+    const transaction = await db.sequelize.transaction()
+    try {
+        await currentProject.setHashtags([], { transaction })
+        const currentHashtags = await db.Hashtag.findAll({
+            where: { name: { [Op.or]: hashtags } },
+            transaction,
+        })
+        const hashtagPromises = []
+        if(currentHashtags.length) {
+            hashtagPromises.push(
+                currentProject.setHashtags(currentHashtags, { transaction })
+            )
+        }
+        const names = currentHashtags.map(h => h.name)
+        for (const h of hashtags) {
+            if(!names.includes(h)) {
+                hashtagPromises.push(
+                    currentProject.createHashtag(h, { transaction })
+                )
+            }
+        }
+        await currentProject.update(values, { transaction })
+        await Promise.all(hashtagPromises)
+
+        await transaction.commit()
+        return true
+    } catch (error) {
+        await transaction.rollback()
+        throw error
+    }
+}
+
 async function addPhotos(projectId, files) {
     const bucket = getStorage().bucket()
     const createdIds = []
@@ -184,4 +222,4 @@ async function addPhotos(projectId, files) {
     return photos
 }
 
-export { getProjects, addProject, addPhotos }
+export { getProjects, addProject, updateProject, addPhotos }

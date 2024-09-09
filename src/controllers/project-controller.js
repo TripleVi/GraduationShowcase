@@ -27,8 +27,19 @@ const createProject = async (req, res) => {
     }
 }
 
-const updateProject = async (req, res) => {
-    res.sendStatus(200)
+const editProject = async (req, res) => {
+    const id = req.params.id
+    const project = req.body
+    try {
+        const isSuccess = await projectService.updateProject(id, project)
+        res.sendStatus(isSuccess ? 204 : 409)
+    } catch (error) {
+        console.log(error)
+        if(error.code == 'PROJECT_NOT_EXIST') {
+            return res.sendStatus(404)
+        }
+        res.sendStatus(500)
+    }
 }
 
 const deleteProject = async (req, res) => {
@@ -51,4 +62,4 @@ const deletePhotos = async (req, res) => {
     res.sendStatus(200)
 }
 
-export { fetchProjects, createProject, updateProject, deleteProject, createPhotos, deletePhotos }
+export { fetchProjects, createProject, editProject, deleteProject, createPhotos, deletePhotos }

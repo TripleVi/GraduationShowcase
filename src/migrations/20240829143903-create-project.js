@@ -21,6 +21,9 @@ module.exports = {
         type: Sequelize.SMALLINT.UNSIGNED,
         allowNull: false,
       },
+      video_id: {
+        type: Sequelize.STRING
+      },
       views: {
         type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,

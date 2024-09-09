@@ -38,3 +38,7 @@ export const TOPIC_HAS_PROJECTS = Object.freeze({
     message: 'Topic contains projects!'
 })
 
+export const PROJECT_NOT_EXIST = Object.freeze({
+    code: 'PROJECT_NOT_EXIST',
+    message: 'Project does not exist!'
+})

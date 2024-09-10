@@ -156,11 +156,7 @@ function uploadAvatars(req, res, next) {
                 break
             case 'LIMIT_FILE_SIZE':
                 error = { code, field, message }
-                if(field == 'report') {
-                    error.message = 'Maximum file size is 10 MB'
-                }else if(field == 'photos') {
-                    error.message = 'Maximum file size is 2 MB'
-                }
+                error.message = 'Maximum file size is 2 MB'
                 break
             default:
                 error = { code, message }
@@ -220,34 +216,55 @@ function uploadAvatar(req, res, next) {
     })
 }
 
-const uploadFiles = multer({
-    storage: diskStorage({
-        filename: (req, file, cb) => {
-            const extension = file.originalname.split('.').at(-1)
-            const unique = Date.now() + '-' + Math.round(Math.random() * 1E9)
-            const filename = unique + '.' + extension
-            cb(null, filename)
-        },
-    }),
-    limits: {
-        fileSize: 1024 * 1024 * 2,
-        fields: 0,
+function uploadPhotos(req, res, next) {
+    req.params.id = req.params.id.trim()
+    if(!req.params.id) {
+        return res.sendStatus(404)
     }
-}).array('data', 20)
+    const upload = multer({
+        storage: diskStorage({
+            filename: (req, file, cb) => {
+                const extension = file.originalname.split('.').at(-1)
+                const unique = Date.now() + '-' + Math.round(Math.random() * 1E9)
+                const filename = unique + '.' + extension
+                cb(null, filename)
+            },
+        }),
+        limits: {
+            fileSize: 1024 * 1024 * 2,
+            files: 20,
+            fields: 0,
+        }
+    }).array('photos', 20)
+    upload(req, res, err => {
+        if(!err) {
+            return req.files ? next() : res.sendStatus(400)
+        }
+        if(!(err instanceof MulterError)) {
+            console.log(err)
+            return res.sendStatus(500)
+        }
+        const { code, message, field } = err
+        let error
+        switch (code) {
+            case 'LIMIT_FIELD_COUNT':
+                error = { code, message }
+                break
+            case 'LIMIT_FILE_COUNT':
+                error = { code, message }
+                break
+            case 'LIMIT_UNEXPECTED_FILE':
+                error = { code, field, message }
+                break
+            case 'LIMIT_FILE_SIZE':
+                error = { code, field, message }
+                error.message = 'Maximum file size is 2 MB'
+                break
+            default:
+                error = { code, message }
+        }
+        res.status(400).send(error)
+    })
+}
 
-const uploadProjectPhotos = multer({
-    storage: diskStorage({
-        filename: (req, file, cb) => {
-            const extension = file.originalname.split('.').at(-1)
-            const unique = Date.now() + '-' + Math.round(Math.random() * 1E9)
-            const filename = unique + '.' + extension
-            cb(null, filename)
-        },
-    }),
-    limits: {
-        fileSize: 1024 * 1024 * 2,
-        fields: 0,
-    }
-}).array('photos', 20)
-
-export { uploadProjectFiles, uploadReport, uploadAvatars, uploadAvatar, uploadFiles, uploadProjectPhotos }
+export { uploadProjectFiles, uploadReport, uploadAvatars, uploadAvatar, uploadPhotos }

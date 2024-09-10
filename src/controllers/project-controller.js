@@ -65,7 +65,6 @@ const createAuthors = async (req, res) => {
         const created = await projectService.addAuthors(id, authors, avatars)
         res.status(201).send(created)
     } catch (error) {
-        console.log(error)
         switch (error.code) {
             case 'TOPIC_NOT_EXIST':
                 res.status(409).send(errors.TOPIC_NOT_EXIST)
@@ -74,6 +73,7 @@ const createAuthors = async (req, res) => {
                 res.status(400).send(errors.EMAIL_EXISTS)
                 break
             default:
+                console.log(error)
                 res.sendStatus(500)
         }
     }
@@ -87,16 +87,36 @@ const createPhotos = async (req, res) => {
     const id = req.params.id
     const photos = req.files
     try {
-        const created = await projectService.addPhotos(id, photos)
-        res.status(201).send(created)
+        const results = await projectService.addPhotos(id, photos)
+        res.status(201).send(results)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(500)
+        switch (error.code) {
+            case 'PROJECT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
     }
 }
 
-const deletePhotos = async (req, res) => {
-    res.sendStatus(200)
+const deletePhoto = async (req, res) => {
+    const projectId = req.params.id
+    const photoId = req.params.pid
+    try {
+        await projectService.removePhoto(projectId, photoId)
+        res.sendStatus(204)
+    } catch (error) {
+        switch (error.code) {
+            case 'PROJECT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
 }
 
-export { fetchProjects, createProject, editProject, editReport, createAuthors, deleteProject, createPhotos, deletePhotos }
+export { fetchProjects, createProject, editProject, editReport, createAuthors, deleteProject, createPhotos, deletePhoto }

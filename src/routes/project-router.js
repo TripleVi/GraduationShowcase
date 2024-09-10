@@ -11,9 +11,9 @@ router.post('/', upload.uploadProjectFiles, val.checkPostProject, ctrl.createPro
 router.put('/:id', val.checkPutProject, ctrl.editProject)
 router.put('/:id/report', upload.uploadReport, ctrl.editReport)
 router.post('/:id/author-group', upload.uploadAvatars, ctrl.createAuthors)
+router.post('/:id/photos', upload.uploadPhotos, ctrl.createPhotos)
+router.delete('/:id/photos/:pid', ctrl.deletePhoto)
 router.delete('/:id', ctrl.deleteProject)
-router.post('/:id/photos', upload.uploadProjectPhotos, ctrl.createPhotos)
-router.delete('/:id/photos', upload.uploadProjectPhotos, ctrl.deletePhotos)
 
 // router.put('/authors', controller.updateAuthors)
 

@@ -1,4 +1,4 @@
-import { Op } from 'sequelize'
+import { Op, where } from 'sequelize'
 
 import db from '../models'
 import * as storageService from './storage-service'
@@ -266,31 +266,53 @@ async function addAuthors(id, authors, files) {
     })
 }
 
-async function addPhotos(projectId, files) {
-    const bucket = getStorage().bucket()
-    const createdIds = []
-    for (const f of files) {
-        const response = await bucket.upload(f.path)
-        const metadata = response['0'].metadata
-        const file = {
-            url: metadata.selfLink,
-            name: metadata.name,
-            originalName: metadata.name,
-            size: metadata.size,
-            mimeType: metadata.contentType
-        }
-        const created = await db.File.create(file)
-        createdIds.push(created.dataValues.id)
+async function addPhotos(id, files) {
+    const project = await db.Project.findByPk(id)
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
     }
-    const photoPromises = []
-    for (const fileId of createdIds) {
-        const photo = { projectId, fileId }
-        photoPromises.push(
-            db.Photo.create(photo)
-        )
-    }
-    const photos = await Promise.all(photoPromises)
-    return photos
+    const filepaths = files.map(f => f.path)
+    const responses = await storageService.uploadFilesFromLocal(filepaths)
+    const newFiles = files.map((f, i) => ({
+        url: responses[i][0].metadata.selfLink,
+        name: f.filename,
+        originalName: f.originalname,
+        size: f.size,
+        mimeType: f.mimetype,
+        photo: { projectId: id },
+    }))
+    const results = await db.File.bulkCreate(newFiles, {
+        include: ['photo'], 
+    })
+    return results.map(r => {
+        const { photo, createdAt, ...rest } = r.dataValues
+        return rest
+    })
 }
 
-export { getProjects, addProject, updateProject, updateReport, addAuthors, addPhotos }
+async function removePhoto(projectId, photoId) {
+    const project = await db.Project.findByPk(projectId, {
+        include: {
+            model: db.Photo,
+            where: { id: photoId }
+        }
+    })
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    const transaction = await db.sequelize.transaction()
+    try {
+        const photo = project.photos[0]
+        const file = await photo.getFile()
+        await storageService.deleteFile(file.name)
+        await photo.destroy({ transaction })
+        await file.destroy({ transaction })
+
+        await transaction.commit()
+    } catch (error) {
+        await transaction.rollback()
+        throw error
+    }
+}
+
+export { getProjects, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto }

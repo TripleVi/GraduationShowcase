@@ -22,24 +22,17 @@ async function testUpload(file) {
     console.log(response)
 }
 
-async function uploadFilesFromLocal(paths) {
+async function uploadFilesFromLocal(files) {
     const bucket = getStorage().bucket()
     const uploadPromises = []
-    for (const p of paths) {
+    for (const f of files) {
         uploadPromises.push(
-            bucket.upload(p, {
+            bucket.upload(f.path, {
+                destination: f.ref,
                 preconditionOpts: { ifGenerationMatch: 0 },
             })
         )
     }
-    // for (const f of files) {
-    //     uploadPromises.push(
-    //         bucket.upload(f.path, {
-    //             destination: f.destination,
-    //             preconditionOpts: { ifGenerationMatch: 0 },
-    //         })
-    //     )
-    // }
     return Promise.all(uploadPromises)
 }
 

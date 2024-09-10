@@ -46,7 +46,6 @@ module.exports = {
       },
       report_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         references: {
           model: 'file',
           key: 'id'

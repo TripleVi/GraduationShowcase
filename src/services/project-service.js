@@ -58,9 +58,6 @@ async function getProjects() {
 
 async function addProject(project, files) {
     const { hashtags, authors, ...newProject } = project
-    const { report, photos, avatars } = files
-    const allFiles = [...report, ...avatars, ...photos]
-
     const topic = await db.Topic.findByPk(newProject.topicId)
     if(!topic) {
         throw { code: 'TOPIC_NOT_EXIST' }
@@ -72,85 +69,79 @@ async function addProject(project, files) {
     if(count) {
         throw { code: 'EMAIL_EXISTS' }
     }
+
+    const { report, photos, avatars } = files
+    const allFiles = []
+    if(report) allFiles.push(...report)
+    if(photos) allFiles.push(...photos)
+    if(avatars) allFiles.push(...avatars)
     const transaction = await db.sequelize.transaction()
     try {
-        const newFiles = []
-        const filepaths = []
-        for (const f of allFiles) {
-            newFiles.push({
-                name: f.filename,
-                originalName: f.originalname,
-                size: f.size,
-                mimeType: f.mimetype,
-            })
-            filepaths.push(f.path)
-        }
-        const responses = await storageService.uploadFilesFromLocal(filepaths)
-        responses.forEach((res, i) => newFiles[i].url = res[0].metadata.selfLink)
-        
-        const filePromises = []
-        for (const f of newFiles) {
-            filePromises.push(db.File.create(f))
-        }
-        const fileResults = await Promise.all(filePromises)
-        const fileIds = fileResults.map(r => r.dataValues.id)
-
-        let index = 0
-        newProject.reportId = fileIds[index++]
-        const projectResult = await db.Project.create(newProject, { transaction })
-        const projectId = projectResult.dataValues.id
+        const createPromises = []
+        const project = await db.Project.create(newProject, { transaction })
         const existingHashtags = await db.Hashtag.findAll({
             where: { name: { [Op.or]: hashtags } },
-            raw: true,
-            transaction,
         })
         const names = existingHashtags.map(h => h.name)
-        const hashtagPromises = []
-        for (const name of hashtags) {
-            if(!names.includes(name)) {
-                hashtagPromises.push(
-                    db.Hashtag.create({ name }, { transaction })
-                )
-            }
-        }
-        const hashtagResults = await Promise.all(hashtagPromises)
-        const hashtagIds = hashtagResults.map(r => r.dataValues.id)
-        
-        const projectHashtagPromises = []
-        for (const hashtagId of hashtagIds) {
-            const values = { projectId, hashtagId }
-            projectHashtagPromises.push(
-                db.ProjectHashtag.create(values, { transaction })
+        const newHashtags = hashtags
+                .filter(n => !names.includes(n))
+                .map(name => ({ name }))
+        const createdHashtags = await db.Hashtag
+                .bulkCreate(newHashtags, { transaction })
+        createPromises.push(
+            project.addHashtags([...existingHashtags, ...createdHashtags], { 
+                transaction, 
+            })
+        )
+        allFiles.forEach(f => f.ref = `projects/${project.id}/${f.filename}`)
+        const responses = await storageService.uploadFilesFromLocal(allFiles)
+        const newFiles = allFiles.map((f, i) => ({
+            url: responses[i][0].metadata.selfLink,
+            name: f.filename,
+            originalName: f.originalname,
+            size: f.size,
+            mimeType: f.mimetype,
+        }))
+        let index = 0
+        if(report) {
+            createPromises.push(
+                project.createReport(newFiles[index++], { transaction })
             )
         }
-
-        const authorPromises = []
-        for (const a of authors) {
+        const newAuthors = authors.map(a => {
             const { fileIndex, ...values } = a
-            values.projectId = projectId
+            values.projectId = project.id
             if(typeof fileIndex == 'number') {
-                values.avatarId = fileIds[fileIndex+index]
+                values.avatar = newFiles[fileIndex+index]
             }
-            authorPromises.push(
-                db.Author.create(values, { transaction })
+            return values
+        })
+        createPromises.push(
+            db.Author.bulkCreate(newAuthors, {
+                include: ['avatar'],
+                transaction,
+            })
+        )
+        index += avatars ? avatars.length : 0
+        if(photos) {
+            const newPhotos = []
+            while (index < newFiles.length) {
+                newPhotos.push({
+                    projectId: project.id,
+                    file: newFiles[index++],
+                })
+            }
+            createPromises.push(
+                db.Photo.bulkCreate(newPhotos, {
+                    include: ['file'],
+                    transaction,
+                })
             )
         }
-        index += avatars.length
-
-        const photoPromises = []
-        while (index < fileIds.length) {
-            const values = { projectId, fileId: fileIds[index++] }
-            photoPromises.push(
-                db.Photo.create(values, { transaction })
-            )
-        }
-
-        await Promise.all(projectHashtagPromises)
-        await Promise.all(authorPromises)
-        await Promise.all(photoPromises)
+        await Promise.all(createPromises)
         
         await transaction.commit()
-        return newProject
+        return project
     } catch (error) {
         await transaction.rollback()
         throw error

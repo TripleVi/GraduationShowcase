@@ -10,8 +10,8 @@ const createProject = async (req, res) => {
     const project = req.body
     const files = req.files
     try {
-        const created = await projectService.addProject(project, files)
-        res.status(201).send(created)
+        const result = await projectService.addProject(project, files)
+        res.status(201).send(result)
     } catch (error) {
         console.log(error)
         switch (error.code) {

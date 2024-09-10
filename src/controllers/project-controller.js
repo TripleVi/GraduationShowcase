@@ -61,7 +61,6 @@ const createAuthors = async (req, res) => {
     const id = req.params.id
     const authors = req.body
     const avatars = req.files
-
     try {
         const created = await projectService.addAuthors(id, authors, avatars)
         res.status(201).send(created)

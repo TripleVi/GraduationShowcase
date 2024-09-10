@@ -169,6 +169,57 @@ function uploadAvatars(req, res, next) {
     })
 }
 
+function uploadAvatar(req, res, next) {
+    req.params.id = req.params.id.trim()
+    if(!req.params.id) {
+        return res.sendStatus(404)
+    }
+    const upload = multer({
+        storage: diskStorage({
+            filename: (req, file, cb) => {
+                const extension = file.originalname.split('.').at(-1)
+                const unique = Date.now() + '-' + Math.round(Math.random() * 1E9)
+                const filename = unique + '.' + extension
+                cb(null, filename)
+            },
+        }),
+        limits: {
+            fileSize: 1024 * 1024 * 2,
+            files: 1,
+            fields: 0,
+        }
+    }).single('avatar')
+    upload(req, res, err => {
+        if(!err) {
+            return next()
+        }
+        if(!(err instanceof MulterError)) {
+            console.log(err)
+            return res.sendStatus(500)
+        }
+        const { code, message, field } = err
+        let error
+        switch (code) {
+            case 'LIMIT_FIELD_COUNT':
+                error = { code, message }
+                break
+            case 'LIMIT_FILE_COUNT':
+                error = { code, message }
+                break
+            case 'LIMIT_UNEXPECTED_FILE':
+                error = { code, field, message }
+                break
+            case 'LIMIT_FILE_SIZE':
+                error = { code, field }
+                error.message = 'Maximum file size is 2 MB'
+                break
+            default:
+                error = { code, message }
+        }
+        res.status(400).send(error)
+    })
+}
+
 const uploadFiles = multer({
     storage: diskStorage({
         filename: (req, file, cb) => {
@@ -199,4 +250,4 @@ const uploadProjectPhotos = multer({
     }
 }).array('photos', 20)
 
-export { uploadProjectFiles, uploadReport, uploadAvatars, uploadFiles, uploadProjectPhotos }
+export { uploadProjectFiles, uploadReport, uploadAvatars, uploadAvatar, uploadFiles, uploadProjectPhotos }

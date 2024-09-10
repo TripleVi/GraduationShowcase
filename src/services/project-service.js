@@ -210,7 +210,7 @@ async function updateReport(id, file) {
             size: file.size,
             mimeType: file.mimetype,
         }
-        const oldReport = await project.getReport({ transaction })
+        const oldReport = await project.getReport()
         await project.createReport(newReport, { transaction })
         await storageService.deleteFile(oldReport.name)
         await oldReport.destroy({ transaction })

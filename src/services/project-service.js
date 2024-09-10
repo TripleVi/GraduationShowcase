@@ -37,20 +37,20 @@ async function getProjects() {
     // authors
     // projects/1
     // authors : PUT
-    const projects = await db.Project.findAll({
+    const projects = await db.Author.findAll({
         attributes: { exclude: ['createdAt', 'updatedAt'] },
-        include: [
-            {
-                model: db.Photo,
-                attributes: ['id'],
-                include: [
-                    {
-                        model: db.File,
-                        required: true,
-                    }
-                ]
-            },
-        ],
+        // include: [
+        //     {
+        //         model: db.Photo,
+        //         attributes: ['id'],
+        //         include: [
+        //             {
+        //                 model: db.File,
+        //                 required: true,
+        //             }
+        //         ]
+        //     },
+        // ],
     })
 
     return projects
@@ -223,6 +223,49 @@ async function updateReport(id, file) {
     }
 }
 
+async function addAuthors(id, authors, files) {
+    const project = await db.Project.findByPk(id)
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    const authorCount = await project.countAuthors()
+    if(authorCount + authors.length > 10) {
+        throw { code: 'LIMIT_AUTHOR_COUNT' }
+    }
+    const emails = authors.map(a => a.email)
+    const emailCount = await db.Author.count({
+        where: { email: { [Op.or]: emails } },
+    })
+    if(emailCount) {
+        throw { code: 'EMAIL_EXISTS' }
+    }
+    const filepaths = files.map(f => f.path)
+    const responses = await storageService.uploadFilesFromLocal(filepaths)
+    const newFiles = files.map((f, i) => ({
+        url: responses[i][0].metadata.selfLink,
+        name: f.filename,
+        originalName: f.originalname,
+        size: f.size,
+        mimeType: f.mimetype,
+    }))
+    const newAuthors = authors.map(a => {
+        const {fileIndex, ...values} = a
+        values.projectId = id
+        if(typeof fileIndex == 'number') {
+            values.avatar = newFiles[fileIndex]
+        }
+        return values
+    })
+    const results = await db.Author.bulkCreate(newAuthors, {
+        include: ['avatar'], 
+    })
+    console.log(results[0].dataValues)
+    return results.map(r => {
+        const { avatarId, createdAt, updatedAt, ...rest } = r.dataValues
+        return rest
+    })
+}
+
 async function addPhotos(projectId, files) {
     const bucket = getStorage().bucket()
     const createdIds = []
@@ -250,4 +293,4 @@ async function addPhotos(projectId, files) {
     return photos
 }
 
-export { getProjects, addProject, updateProject, updateReport, addPhotos }
+export { getProjects, addProject, updateProject, updateReport, addAuthors, addPhotos }

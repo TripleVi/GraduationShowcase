@@ -57,6 +57,29 @@ const editReport = async (req, res) => {
     }
 }
 
+const createAuthors = async (req, res) => {
+    const id = req.params.id
+    const authors = req.body
+    const avatars = req.files
+
+    try {
+        const created = await projectService.addAuthors(id, authors, avatars)
+        res.status(201).send(created)
+    } catch (error) {
+        console.log(error)
+        switch (error.code) {
+            case 'TOPIC_NOT_EXIST':
+                res.status(409).send(errors.TOPIC_NOT_EXIST)
+                break
+            case 'EMAIL_EXISTS':
+                res.status(400).send(errors.EMAIL_EXISTS)
+                break
+            default:
+                res.sendStatus(500)
+        }
+    }
+}
+
 const deleteProject = async (req, res) => {
     res.sendStatus(200)
 }
@@ -77,4 +100,4 @@ const deletePhotos = async (req, res) => {
     res.sendStatus(200)
 }
 
-export { fetchProjects, createProject, editProject, editReport, deleteProject, createPhotos, deletePhotos }
+export { fetchProjects, createProject, editProject, editReport, createAuthors, deleteProject, createPhotos, deletePhotos }

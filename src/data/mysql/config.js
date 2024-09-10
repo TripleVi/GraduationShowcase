@@ -24,5 +24,5 @@ const User = sequelize.define('User', {
   },
 }, {omitNull, initialAutoIncrement: false})
 
-const user = await User.create({paranoid})
+const user = await User.bulkCreate([], {include}).create({paranoid})
 user.destroy()

@@ -29,7 +29,7 @@ const checkPostProject = async (req, res, next) => {
             return true
         } } },
         'hashtags.*': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
-        authors: { isArray: { options: { min: avatarCount } }, custom: { options: values => {
+        authors: { isArray: { options: { min: avatarCount, max: 10 } }, custom: { options: values => {
             const uniqueValues = new Set(values.map(v => v.email))
             if(uniqueValues.size != values.length) {
                 throw new Error('Duplicate emails')

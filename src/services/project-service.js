@@ -374,4 +374,25 @@ async function removeProject(id) {
     }
 }
 
-export { getProjects, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject }
+async function addReaction(id) {
+    const project = await db.Project.findByPk(id)
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    const values = { likes: project.likes + 1 }
+    await project.update(values)
+}
+
+async function removeReaction(id) {
+    const project = await db.Project.findByPk(id)
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    if(!project.likes) {
+        throw { code: 'BAD_REQUEST' }
+    }
+    const values = { likes: project.likes - 1 }
+    await project.update(values)
+}
+
+export { getProjects, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject, addReaction, removeReaction }

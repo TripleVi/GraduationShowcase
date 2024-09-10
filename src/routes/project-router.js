@@ -13,7 +13,8 @@ router.put('/:id/report', upload.uploadReport, ctrl.editReport)
 router.post('/:id/author-group', upload.uploadAvatars, ctrl.createAuthors)
 router.post('/:id/photos', upload.uploadPhotos, ctrl.createPhotos)
 router.delete('/:id/photos/:pid', ctrl.deletePhoto)
-router.delete('/:id', ctrl.deleteProject)
+router.post('/:id/reaction', ctrl.createReaction)
+router.delete('/:id/reaction', ctrl.deleteReaction)
 
 // router.put('/authors', controller.updateAuthors)
 

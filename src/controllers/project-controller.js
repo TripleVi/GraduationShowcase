@@ -135,4 +135,47 @@ const deleteProject = async (req, res) => {
     }
 }
 
-export { fetchProjects, createProject, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject }
+const createReaction = async (req, res) => {
+    const id = req.params.id.trim()
+    if(!id) {
+        return res.sendStatus(404)
+    }
+    try {
+        await projectService.addReaction(id)
+        res.sendStatus(204)
+    } catch (error) {
+        switch (error.code) {
+            case 'PROJECT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
+}
+
+const deleteReaction = async (req, res) => {
+    const id = req.params.id.trim()
+    if(!id) {
+        return res.sendStatus(404)
+    }
+    try {
+        await projectService.removeReaction(id)
+        res.sendStatus(204)
+    } catch (error) {
+        switch (error.code) {
+            case 'PROJECT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'BAD_REQUEST':
+                res.sendStatus(400)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
+}
+
+export { fetchProjects, createProject, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject, createReaction, deleteReaction }

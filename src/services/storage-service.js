@@ -32,6 +32,14 @@ async function uploadFilesFromLocal(paths) {
             })
         )
     }
+    // for (const f of files) {
+    //     uploadPromises.push(
+    //         bucket.upload(f.path, {
+    //             destination: f.destination,
+    //             preconditionOpts: { ifGenerationMatch: 0 },
+    //         })
+    //     )
+    // }
     return Promise.all(uploadPromises)
 }
 

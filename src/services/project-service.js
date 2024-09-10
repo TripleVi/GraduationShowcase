@@ -1,4 +1,4 @@
-import { Op, where } from 'sequelize'
+import { Op } from 'sequelize'
 
 import db from '../models'
 import * as storageService from './storage-service'
@@ -315,4 +315,63 @@ async function removePhoto(projectId, photoId) {
     }
 }
 
-export { getProjects, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto }
+async function removeProject(id) {
+    const project = await db.Project.findByPk(id)
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    const transaction = await db.sequelize.transaction()
+    try {
+        const fileIds = []
+        const deletePromises = []
+        const deletePromises2 = []
+        // delete upstream folder
+        deletePromises2.push(storageService.deleteFolder(`project/${id}`))
+        // delete project_hashtags
+        deletePromises.push(project.setHashtags([], { transaction }))
+        // delete authors
+        const authors = await project.getAuthors({
+            attributes: ['avatarId'],
+            where: { avatarId: { [Op.ne]: null } },
+            raw: true,
+        })
+        fileIds.push(authors.map(a => a.avatarId))
+        deletePromises.push(
+            db.Author.destroy({
+                where: { projectId: id },
+                transaction,
+            })
+        )
+        // delete photos
+        const photos = await project.getPhotos({
+            attributes: ['fileId'],
+            raw: true,
+        })
+        fileIds.push(photos.map(p => p.fileId))
+        deletePromises.push(
+            db.Photo.destroy({
+                where: { projectId: id },
+                transaction,
+            })
+        )
+        await Promise.all(deletePromises)
+        //delete project
+        deletePromises2.push(project.destroy({ transaction }))
+        // delete files
+        deletePromises2.push(
+            db.File.destroy({
+                where: { id: { [Op.or]: fileIds } },
+                transaction,
+            })
+        )
+        await Promise.all(deletePromises2)
+        // delete comment
+
+        await transaction.commit()
+    } catch (error) {
+        await transaction.rollback()
+        throw error
+    }
+}
+
+export { getProjects, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject }

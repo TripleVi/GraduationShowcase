@@ -7,6 +7,21 @@ async function uploadFromLocal(path) {
     })
 }
 
+async function testUpload(file) {
+    const bucket = getStorage().bucket()
+    // bucket.deleteFiles({force})
+    const result = await bucket.deleteFiles({ prefix: 'project' })
+    console.log('----------------------')
+    console.log(result)
+    console.log('----------------------')
+    return
+    const response = await bucket.upload(file.path, {
+        destination: `project2/author/${file.filename}`,
+        preconditionOpts: { ifGenerationMatch: 0 },
+    })
+    console.log(response)
+}
+
 async function uploadFilesFromLocal(paths) {
     const bucket = getStorage().bucket()
     const uploadPromises = []
@@ -20,8 +35,19 @@ async function uploadFilesFromLocal(paths) {
     return Promise.all(uploadPromises)
 }
 
-async function deleteFile(filename) {
-    return getStorage().bucket().file(filename).delete()
+async function deleteFile(fileRef) {
+    return getStorage().bucket().file(fileRef).delete()
 }
 
-export { uploadFromLocal, uploadFilesFromLocal, deleteFile }
+async function deleteFiles(fileRefs) {
+    const bucket = getStorage().bucket()
+    const deletePromises = fileRefs.map(ref => bucket.file(ref).delete())
+    return Promise.all(deletePromises)
+}
+
+async function deleteFolder(folderRef) {
+    const bucket = getStorage().bucket()
+    return bucket.deleteFiles({ prefix: folderRef, force: true })
+}
+
+export { uploadFromLocal, uploadFilesFromLocal, deleteFile, deleteFiles, deleteFolder, testUpload }

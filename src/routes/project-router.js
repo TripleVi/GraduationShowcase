@@ -7,6 +7,7 @@ import * as val from '../middlewares/validators/project-validator'
 const router = Router()
 
 router.get('/', ctrl.fetchProjects)
+router.get('/:id', ctrl.fetchProjectDetails)
 router.post('/', upload.uploadProjectFiles, val.checkPostProject, ctrl.createProject)
 router.put('/:id', val.checkPutProject, ctrl.editProject)
 router.put('/:id/report', upload.uploadReport, ctrl.editReport)

@@ -6,6 +6,29 @@ const fetchProjects = async (req, res) => {
     res.status(200).send(projects)
 }
 
+const fetchProjectDetails = async (req, res) => {
+    const id = req.params.id.trim()
+    if(!id) {
+        return res.sendStatus(404)
+    }
+    try {
+        const projects = await projectService.getProjectById(id)
+        res.status(200).send(projects)
+    } catch (error) {
+        switch (error.code) {
+            case 'PROJECT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'BAD_REQUEST':
+                res.sendStatus(400)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
+}
+
 const createProject = async (req, res) => {
     const project = req.body
     const files = req.files
@@ -178,4 +201,4 @@ const deleteReaction = async (req, res) => {
     }
 }
 
-export { fetchProjects, createProject, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject, createReaction, deleteReaction }
+export { fetchProjects, fetchProjectDetails, createProject, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject, createReaction, deleteReaction }

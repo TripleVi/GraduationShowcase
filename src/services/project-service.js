@@ -56,6 +56,17 @@ async function getProjects() {
     return projects
 }
 
+async function getProjectById(id) {
+    const project = await db.Project.findByPk(id)
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    const views = project.views + 1
+    db.Project.update({ views }, { where: { id }})
+
+    return project
+}
+
 async function addProject(project, files) {
     const { hashtags, authors, ...newProject } = project
     const topic = await db.Topic.findByPk(newProject.topicId)
@@ -386,4 +397,4 @@ async function removeReaction(id) {
     await project.update(values)
 }
 
-export { getProjects, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject, addReaction, removeReaction }
+export { getProjects, getProjectById, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject, addReaction, removeReaction }

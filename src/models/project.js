@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       Project.hasMany(models.Author)
       Project.hasMany(models.Photo)
       Project.belongsToMany(models.Hashtag, { through: models.ProjectHashtag })
+      Project.hasMany(models.Comment)
     }
   }
   Project.init({

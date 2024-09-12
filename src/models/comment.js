@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Comment.init({
     content: DataTypes.STRING(3000),
-    level: DataTypes.SMALLINT.UNSIGNED,
+    location: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Comment',

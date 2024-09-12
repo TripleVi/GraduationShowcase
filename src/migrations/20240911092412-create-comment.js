@@ -13,10 +13,8 @@ module.exports = {
         type: Sequelize.STRING(3000),
         allowNull: false
       },
-      level: {
-        type: Sequelize.SMALLINT.UNSIGNED,
-        allowNull: false,
-        defaultValue: 0
+      location: {
+        type: Sequelize.STRING
       },
       project_id: {
         type: Sequelize.INTEGER,
@@ -34,7 +32,7 @@ module.exports = {
           model: 'comment',
           key: 'id'
         },
-        onDelete: 'CASCADE',
+        onDelete: 'RESTRICT',
         onUpdate: 'CASCADE'
       },
       author_id: {

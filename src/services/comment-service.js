@@ -16,14 +16,16 @@ async function addComment(id, comment) {
     }
     if(comment.parentId) {
         const parent = await db.Comment.findOne({
-            attributes: ['level'],
+            attributes: ['location'],
             where: { id: comment.parentId, projectId: id }
         })
         console.log(parent)
         if(!parent) {
             throw { code: 'COMMENT_NOT_EXIST' }
         }
-        comment.level = parent.level + 1
+        comment.location = parent.location 
+                ? `${parent.location}/${comment.parentId}`
+                : `${comment.parentId}`
     }
     comment.projectId = id
     return db.Comment.create(comment)

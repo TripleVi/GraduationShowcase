@@ -17,6 +17,7 @@ router.delete('/:id/photos/:pid', ctrl.deletePhoto)
 router.post('/:id/reaction', ctrl.createReaction)
 router.delete('/:id/reaction', ctrl.deleteReaction)
 router.get('/:id/comments', ctrl.fetchOrphanComments)
+router.post('/:id/comments', ctrl.createComment)
 
 // router.put('/authors', controller.updateAuthors)
 

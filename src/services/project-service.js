@@ -397,22 +397,4 @@ async function removeReaction(id) {
     await project.update(values)
 }
 
-async function getOrphanComments(id) {
-    const project = await db.Project.findByPk(id)
-    if(!project) {
-        throw { code: 'PROJECT_NOT_EXIST' }
-    }
-    const comments = await project.getComments()
-    return comments
-}
-
-async function addComment(id, comment) {
-    const project = await db.Project.findByPk(id)
-    if(!project) {
-        throw { code: 'PROJECT_NOT_EXIST' }
-    }
-    const values = { likes: project.likes + 1 }
-    await project.update(values)
-}
-
-export { getProjects, getProjectById, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject, addReaction, removeReaction, getOrphanComments, addComment }
+export { getProjects, getProjectById, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject, addReaction, removeReaction }

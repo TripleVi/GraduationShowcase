@@ -201,48 +201,4 @@ const deleteReaction = async (req, res) => {
     }
 }
 
-const fetchOrphanComments = async (req, res) => {
-    const id = req.params.id.trim()
-    if(!id) {
-        return res.sendStatus(404)
-    }
-    try {
-        const results = await projectService.getOrphanComments(id)
-        res.status(200).send(results)
-    } catch (error) {
-        switch (error.code) {
-            case 'PROJECT_NOT_EXIST':
-                res.sendStatus(404)
-                break
-            case 'BAD_REQUEST':
-                res.sendStatus(400)
-                break
-            default:
-                console.log(error)
-                res.sendStatus(500)
-        }
-    }
-}
-
-const createComment = async (req, res) => {
-    const id = req.params.id.trim()
-    const comment = req.body
-    if(!id) {
-        return res.sendStatus(404)
-    }
-    try {
-        const result = await projectService.addComment(id, comment)
-        res.status(201).send(result)
-    } catch (error) {
-        switch (error.code) {
-            case 'PROJECT_NOT_EXIST':
-                res.sendStatus(404)
-                break
-            default:
-                console.log(error)
-                res.sendStatus(500)
-        }
-    }
-}
-
-export { fetchProjects, fetchProjectDetails, createProject, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject, createReaction, deleteReaction, fetchOrphanComments, createComment }
+export { fetchProjects, fetchProjectDetails, createProject, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject, createReaction, deleteReaction }

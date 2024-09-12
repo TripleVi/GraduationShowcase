@@ -29,4 +29,27 @@ async function addComment(id, comment) {
     return db.Comment.create(comment)
 }
 
-export { getOrphanComments, addComment }
+async function updateComment(comment) {
+    const currentComment = await db.Comment.findByPk(comment.id)
+    if(!currentComment) {
+        throw { code: 'COMMENT_NOT_EXIST' }
+    }
+    if(comment.authorId !== currentComment.authorId) {
+        throw { code: 'ACTION_FORBIDDEN' }
+    }
+    const values = { content: comment.content }
+    await currentComment.update(values)
+}
+
+async function removeComment(id, authorId) {
+    const comment = await db.Comment.findByPk(id)
+    if(!comment) {
+        throw { code: 'COMMENT_NOT_EXIST' }
+    }
+    if(comment.authorId !== authorId) {
+        throw { code: 'ACTION_FORBIDDEN' }
+    }
+    await comment.destroy()
+}
+
+export { getOrphanComments, addComment, updateComment, removeComment }

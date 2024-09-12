@@ -49,4 +49,52 @@ const createComment = async (req, res) => {
     }
 }
 
-export { fetchOrphanComments, createComment }
+const editComment = async (req, res) => {
+    const comment = {
+        id: req.params.id,
+        authorId: req.User.uid,
+        ...req.body,
+    }
+    try {
+        await commentService.updateComment(comment)
+        res.sendStatus(204)
+    } catch (error) {
+        switch (error.code) {
+            case 'COMMENT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'ACTION_FORBIDDEN':
+                res.status(403).send(errors.COMMENT_PUT_FORBIDDEN)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
+}
+
+const deleteComment = async (req, res) => {
+    const id = req.params.id.trim()
+    if(!id) {
+        return res.sendStatus(404)
+    }
+    const authorId = req.User.uid
+    try {
+        await commentService.removeComment(id, authorId)
+        res.sendStatus(204)
+    } catch (error) {
+        switch (error.code) {
+            case 'COMMENT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'ACTION_FORBIDDEN':
+                res.status(403).send(errors.COMMENT_DEL_FORBIDDEN)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
+}
+
+export { fetchOrphanComments, createComment, editComment, deleteComment }

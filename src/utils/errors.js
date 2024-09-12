@@ -57,3 +57,13 @@ export const USER_NOT_EXIST = Object.freeze({
     code: 'USER_NOT_EXIST',
     message: 'User does not exist!'
 })
+
+export const COMMENT_PUT_FORBIDDEN = Object.freeze({
+    code: 'ACTION_FORBIDDEN',
+    message: 'Only the creator can update this comment!'
+})
+
+export const COMMENT_DEL_FORBIDDEN = Object.freeze({
+    code: 'ACTION_FORBIDDEN',
+    message: 'Only the creator can delete this comment!'
+})

@@ -34,7 +34,7 @@ module.exports = {
           model: 'comment',
           key: 'id'
         },
-        onDelete: 'RESTRICT',
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
       author_id: {

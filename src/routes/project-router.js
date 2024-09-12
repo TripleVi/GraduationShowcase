@@ -1,11 +1,11 @@
 import { Router } from 'express'
 
+import { verifyJWT } from '../middlewares/auth'
 import * as projectCtrl from '../controllers/project-controller'
 import * as commentCtrl from '../controllers/comment-controller'
 import * as upload from '../middlewares/file-upload'
 import * as projectVal from '../middlewares/validators/project-validator'
 import * as commentVal from '../middlewares/validators/comment-validator'
-import { verifyJWT } from '../middlewares/auth'
 
 const router = Router()
 

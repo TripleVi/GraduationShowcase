@@ -24,5 +24,5 @@ const User = sequelize.define('User', {
   },
 }, {omitNull, initialAutoIncrement: false})
 
-const user = await User.create({paranoid})
+const user = await User.findByPk(1, {})
 // user.update()

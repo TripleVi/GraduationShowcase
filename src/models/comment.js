@@ -13,8 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Comment.belongsTo(models.Project)
       Comment.belongsTo(models.User, { as: 'author' })
-      Comment.hasOne(models.Comment, { foreignKey: 'replyTo' })
-      Comment.belongsTo(models.Comment, { foreignKey: 'replyTo' })
+      Comment.belongsTo(models.Comment, { as: 'parent' })
     }
   }
   Comment.init({

@@ -7,7 +7,6 @@ const checkPostComment = async (req, res, next) => {
     }
     await checkSchema({
         content: { isString: true, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 3000 } }, escape: true },
-        authorId: { isInt: true },
         parentId: { optional: { options: { values: 'null' } }, isInt: true },
     }, ['body']).run(req)
 

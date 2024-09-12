@@ -25,8 +25,9 @@ const fetchOrphanComments = async (req, res) => {
 }
 
 const createComment = async (req, res) => {
-    const id = req.params.id.trim()
+    const id = req.params.id
     const comment = req.body
+    comment.authorId = req.User.uid
     if(!id) {
         return res.sendStatus(404)
     }
@@ -37,6 +38,9 @@ const createComment = async (req, res) => {
         switch (error.code) {
             case 'PROJECT_NOT_EXIST':
                 res.sendStatus(404)
+                break
+            case 'COMMENT_NOT_EXIST':
+                res.status(400).send(errors.COMMENT_NOT_EXIST)
                 break
             default:
                 console.log(error)

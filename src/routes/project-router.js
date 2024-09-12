@@ -5,6 +5,7 @@ import * as commentCtrl from '../controllers/comment-controller'
 import * as upload from '../middlewares/file-upload'
 import * as projectVal from '../middlewares/validators/project-validator'
 import * as commentVal from '../middlewares/validators/comment-validator'
+import { verifyJWT } from '../middlewares/auth'
 
 const router = Router()
 
@@ -19,6 +20,6 @@ router.delete('/:id/photos/:pid', projectCtrl.deletePhoto)
 router.post('/:id/reaction', projectCtrl.createReaction)
 router.delete('/:id/reaction', projectCtrl.deleteReaction)
 router.get('/:id/comments', commentCtrl.fetchOrphanComments)
-router.post('/:id/comments', commentVal.checkPostComment, commentCtrl.createComment)
+router.post('/:id/comments', verifyJWT, commentVal.checkPostComment, commentCtrl.createComment)
 
 export default router

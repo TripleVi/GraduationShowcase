@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       singular: 'project',
       plural: 'projects'
     },
+    tableName: 'project',
   });
   return Project;
 };

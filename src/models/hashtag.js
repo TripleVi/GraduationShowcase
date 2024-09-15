@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Hashtag',
+    tableName: 'hashtag',
     updatedAt: false,
     name: {
       singular: 'hashtag',

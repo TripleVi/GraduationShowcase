@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Major',
+    tableName: 'major',
     name: {
       singular: 'major',
       plural: 'majors'

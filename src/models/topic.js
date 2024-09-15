@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Topic',
+    tableName: 'topic',
     name: {
       singular: 'topic',
       plural: 'topics'

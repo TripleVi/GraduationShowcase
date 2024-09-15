@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ProjectHashtag',
-    tableName: 'Project_Hashtag',
+    tableName: 'project_hashtag',
     timestamps: false,
     name: {
       singular: 'projectHashtag',

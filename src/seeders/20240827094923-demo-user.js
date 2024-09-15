@@ -17,7 +17,7 @@ module.exports = {
     // return queryInterface.bulkInsert('User', [{
     //   email: 'vuongvvgch190692@fpt.edu.vn',
     //   username: 'vuongvvgch190692',
-    //   password: '$2a$10$DK0WVyqfBzwH.e.DKttu8.m/R/l3FjaXeHy64l5NOvBBs5BK8zNga',
+    //   password: '$2a$10$QwzYGWm9DPzDq/Q9/0Z9yeANa7Tugp8f./j/cRbuYdS3QfK00r3fS',
     //   role_id: 1,
     //   created_at: new Date(),
     //   updated_at: new Date(),

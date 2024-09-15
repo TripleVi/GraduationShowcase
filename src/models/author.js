@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       singular: 'author',
       plural: 'authors'
     },
+    tableName: 'author',
   });
   return Author;
 };

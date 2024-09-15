@@ -24,7 +24,7 @@ module.exports = {
     // }]);
 
     // User
-    return queryInterface.bulkInsert('User', [{
+    return queryInterface.bulkInsert('user', [{
       email: 'vuongvu061101@gmail.com',
       username: 'rosie_cheek01',
       password: '$2a$10$eHsHYbOPTRCm2sxezZFgwuCVXex.aH.ZzTx5vZKDpl5vXp1cFuCL.',

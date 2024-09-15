@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    return queryInterface.bulkInsert('Hashtag', [
+    return queryInterface.bulkInsert('hashtag', [
       {
         name: 'web',
         created_at: new Date(),

@@ -1,4 +1,4 @@
-import { getStorage } from 'firebase-admin/storage'
+import { getStorage, getDownloadURL } from 'firebase-admin/storage'
 
 async function uploadFromLocal(path) {
     const bucket = getStorage().bucket()
@@ -20,6 +20,12 @@ async function testUpload(file) {
         preconditionOpts: { ifGenerationMatch: 0 },
     })
     console.log(response)
+}
+
+async function getDownloadLink() {
+    const fileRef = getStorage().bucket().file('1725968318710-531017264.png');
+    const downloadURL = await getDownloadURL(fileRef);
+    console.log(downloadURL)
 }
 
 async function uploadFilesFromLocal(files) {
@@ -51,4 +57,4 @@ async function deleteFolder(folderRef) {
     return bucket.deleteFiles({ prefix: folderRef, force: true })
 }
 
-export { uploadFromLocal, uploadFilesFromLocal, deleteFile, deleteFiles, deleteFolder, testUpload }
+export { uploadFromLocal, uploadFilesFromLocal, deleteFile, deleteFiles, deleteFolder, testUpload, getDownloadLink }

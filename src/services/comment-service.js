@@ -1,5 +1,7 @@
 import db from '../models'
 
+import { getDownloadLink } from './storage-service'
+
 async function getOrphanComments(id) {
     const project = await db.Project.findByPk(id)
     if(!project) {
@@ -10,6 +12,8 @@ async function getOrphanComments(id) {
 }
 
 async function addComment(id, comment) {
+    await getDownloadLink()
+
     const projectCount = await db.Project.count({ where: { id } })
     if(!projectCount) {
         throw { code: 'PROJECT_NOT_EXIST' }

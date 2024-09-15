@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    return queryInterface.bulkInsert('Comment', [
+    return queryInterface.bulkInsert('comment', [
       {
         content: 'Suppose we want to insert some data into a few tables by default. If we follow up on the previous example we can consider creating a demo user for the User table.',
         project_id: 1,

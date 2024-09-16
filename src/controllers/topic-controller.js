@@ -2,13 +2,21 @@ import * as topicService from '../services/topic-service'
 import { getMajorById } from '../services/major-service'
 import * as error from '../utils/errors'
 
-const fetchTopics = async (req, res) => {
+const fetchTopicsByMajor = async (req, res) => {
+    const majorId = req.params.id
+    const options = req.query
     try {
-        const topics = await topicService.getTopics()
+        const topics = await topicService.getTopicsByMajor(majorId, options)
         res.status(200).send(topics)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(500)
+        switch (error.code) {
+            case 'MAJOR_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
     }
 }
 
@@ -68,4 +76,4 @@ const deleteTopic = async (req, res) => {
     }
 }
 
-export { fetchTopics, createTopic, editTopic, deleteTopic }
+export { fetchTopicsByMajor, createTopic, editTopic, deleteTopic }

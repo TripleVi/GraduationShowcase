@@ -1,11 +1,28 @@
 import db from '../models'
 
-async function getTopics() {
-    const topics = await db.Topic.findAll({
-        attributes: { exclude: ['createdAt', 'updatedAt'] },
-        raw: true
+async function getTopicsByMajor(majorId, options) {
+    const major = await db.Major.findByPk(majorId)
+    if(!major) {
+        throw { code: 'MAJOR_NOT_EXIST' }
+    }
+    const upperLimit = 25
+    const {
+        limit = upperLimit,
+        offset = 0,
+    } = options
+    const totalItems = await major.countTopics()
+    const metadata = { totalItems }
+    if(limit === 0) {
+        return { data: [], metadata }
+    }
+    const majors = await major.getTopics({
+        attributes: { exclude: ['createdAt', 'updatedAt', 'majorId'] },
+        raw: true,
+        order: [['name', 'ASC']],
+        offset,
+        limit: Math.min(limit, upperLimit),
     })
-    return topics
+    return { data: majors, metadata }
 }
 
 async function getTopicByName(name) {
@@ -48,4 +65,4 @@ async function removeTopic(id) {
     return !!affected
 }
 
-export { getTopics, getTopicByName, getTopicById, addTopic, updateTopic, removeTopic }
+export { getTopicsByMajor, getTopicByName, getTopicById, addTopic, updateTopic, removeTopic }

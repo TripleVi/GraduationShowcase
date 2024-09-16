@@ -1,5 +1,6 @@
 import express from 'express'
 import bodyParser from 'body-parser'
+import cors from 'cors'
 import 'dotenv/config'
 import { initializeApp, cert } from 'firebase-admin/app'
 
@@ -7,6 +8,12 @@ import initRoutes from './routes'
 import serviceAccount from '../service-account-key.json'
 
 const app = express()
+
+app.use(cors({
+  origin: '*',
+  optionsSuccessStatus: 200,
+  credentials: true,
+}))
 
 initializeApp({
   credential: cert(serviceAccount),

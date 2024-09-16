@@ -1,11 +1,24 @@
 import db from '../models'
 
-export async function getMajors() {
+export async function getMajors(options) {
+    const upperLimit = 25
+    const {
+        limit = upperLimit,
+        offset = 0,
+    } = options
+    const totalItems = await db.Major.count()
+    const metadata = { totalItems }
+    if(limit === 0) {
+        return { data: [], metadata }
+    }
     const majors = await db.Major.findAll({
         attributes: { exclude: ['createdAt', 'updatedAt'] },
-        raw: true
+        raw: true,
+        order: [['name', 'ASC']],
+        offset,
+        limit: Math.min(limit, upperLimit),
     })
-    return majors
+    return { data: majors, metadata }
 }
 
 export async function getMajorByName(name) {

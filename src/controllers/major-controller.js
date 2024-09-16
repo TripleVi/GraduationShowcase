@@ -3,7 +3,8 @@ import * as error from '../utils/errors'
 
 const fetchMajors = async (req, res) => {
     try {
-        const majors = await majorService.getMajors()
+        const options = req.query
+        const majors = await majorService.getMajors(options)
         res.status(200).send(majors)
     } catch (error) {
         console.log(error)

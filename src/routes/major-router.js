@@ -1,14 +1,14 @@
 import { Router } from 'express'
 
-import * as controller from '../controllers/major-controller'
+import * as ctrl from '../controllers/major-controller'
 import { verifyJWT } from '../middlewares/auth'
-import * as validator from '../middlewares/validators/major-validator'
+import * as val from '../middlewares/validators/major-validator'
 
 const router = Router()
 
-router.get('/', controller.fetchMajors)
-router.post('/', verifyJWT, validator.checkPostMajor, controller.createMajor)
-router.put('/:id', verifyJWT, validator.checkPutMajor, controller.editMajor)
-router.delete('/:id', verifyJWT, controller.deleteMajor)
+router.get('/', val.checkGet, ctrl.fetchMajors)
+router.post('/', verifyJWT, val.checkPost, ctrl.createMajor)
+router.put('/:id', verifyJWT, val.checkPut, ctrl.editMajor)
+router.delete('/:id', verifyJWT, ctrl.deleteMajor)
 
 export default router

@@ -33,10 +33,6 @@ import * as storageService from './storage-service'
 // }
 
 async function getProjects() {
-    // projects/1/files
-    // authors
-    // projects/1
-    // authors : PUT
     const projects = await db.Author.findAll({
         attributes: { exclude: ['createdAt', 'updatedAt'] },
         // include: [

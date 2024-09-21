@@ -32,22 +32,94 @@ import * as storageService from './storage-service'
 //     })
 // }
 
-async function getProjects() {
-    const projects = await db.Author.findAll({
-        attributes: { exclude: ['createdAt', 'updatedAt'] },
-        // include: [
-        //     {
-        //         model: db.Photo,
-        //         attributes: ['id'],
-        //         include: [
-        //             {
-        //                 model: db.File,
-        //                 required: true,
-        //             }
-        //         ]
-        //     },
-        // ],
+async function getProjects(params) {
+    
+    
+    const upperLimit = 25
+    const { m, t, limit=upperLimit, offset=0, search, sort } = params
+    return await db.Project.findAll({
+        attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
+        subQuery: false,
+        where: {
+            [Op.or]: [
+                { title: { [Op.like]: `%${search}%` } },
+                { year: { [Op.like]: `%${search}%` } },
+                { '$authors.name$': { [Op.like]: `%${search}%` } },
+                { '$hashtags.name$': { [Op.like]: `%${search}%` } },
+            ],
+        },
+        limit: 25,
+        // // order: [['createdAt', 'DESC']],
+        include: [
+            {
+                model: db.Author,
+                attributes: [],
+            },
+            {
+                model: db.Hashtag,
+                attributes: ['name'],
+                through: { attributes: [] },
+            },
+        ],
     })
+    // sort: title, year, views, and likes -> ?sort=title
+    // search: title, year, author, hashtag
+
+    const options = {
+        offset,
+        limit: Math.min(limit, upperLimit),
+        order: [['createdAt', 'DESC']],
+    }
+    if(sort) {
+        const type = sort[0] == '+' ? 'ASC' : 'DESC'
+        const field = sort.slice(1)
+        options.order = [[field, type]]
+    }
+    const metadata = {}
+    // if(limit === 0) {
+    //     return { data: [], metadata }
+    // }
+    let projects = []
+    if(t) {
+        const topic = await db.Topic.findByPk(t)
+        if(!topic) {
+            throw { code: 'TOPIC_NOT_EXIST' }
+        }
+        // const totalItems = topic.count
+        projects = await topic.getProjects(options)
+    }else if(m) {
+        const major = await db.Major.findByPk(m)
+        if(!major) {
+            throw { code: 'MAJOR_NOT_EXIST' }
+        }
+        projects = await db.Project.findAll({
+            limit: 25,
+            attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
+            include: [
+                {
+                    model: db.Topic,
+                    attributes: { exclude: ['majorId', 'createdAt', 'updatedAt'] },
+                    include: {
+                        attributes: [],
+                        model: db.Major,
+                        where: { id: m }
+                    }
+                }
+            ]
+        })
+    }else {
+        projects = await db.Project.findAll({
+            attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
+            limit: 25,
+            order: [['createdAt', 'DESC']],
+            include: [
+                {
+                    model: db.Topic,
+                    attributes: ['id', 'name'],
+                },
+            ],
+        })
+    }
 
     return projects
 }

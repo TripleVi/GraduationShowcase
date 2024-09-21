@@ -34,6 +34,18 @@ module.exports = (sequelize, DataTypes) => {
       plural: 'projects'
     },
     tableName: 'project',
+    indexes: [
+      {
+        name: 'project_title',
+        type: 'FULLTEXT',
+        fields: ['title'],
+      },
+      {
+        name: 'project_year',
+        using: 'BTREE',
+        fields: ['year'],
+      }
+    ],
   });
   return Project;
 };

@@ -62,6 +62,16 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
+
+    await queryInterface.addIndex('project', {
+      type: 'FULLTEXT',
+      fields: ['title']
+    });
+
+    await queryInterface.addIndex('project', {
+      using: 'BTREE',
+      fields: ['year']
+    });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('project');

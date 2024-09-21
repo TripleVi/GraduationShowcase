@@ -32,7 +32,9 @@ const verifyJWT = async (req, res, next) => {
 }
 
 const isAdmin = (req, res, next) => {
-    if(RoleEnum.ADMIN === req.User.uid) return next()
+    if(RoleEnum.ADMIN === req.User.uid) {
+        return next()
+    }
     res.status(403).send({ error: 'Access denied' })
 }
 

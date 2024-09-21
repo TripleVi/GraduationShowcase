@@ -26,6 +26,13 @@ module.exports = (sequelize, DataTypes) => {
       plural: 'authors'
     },
     tableName: 'author',
+    indexes: [
+      {
+        name: 'project_name',
+        type: 'FULLTEXT',
+        fields: ['name'],
+      },
+    ],
   });
   return Author;
 };

@@ -6,7 +6,6 @@ import { verifyJWT } from '../middlewares/auth'
 
 const router = Router()
 
-router.post('/', verifyJWT, topicVal.checkPost, topicCtrl.createTopic)
 router.put('/:id', verifyJWT, topicVal.checkPut, topicCtrl.editTopic)
 router.delete('/:id', verifyJWT, topicCtrl.deleteTopic)
 

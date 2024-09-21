@@ -9,10 +9,10 @@ import * as commentVal from '../middlewares/validators/comment-validator'
 
 const router = Router()
 
-router.get('/', projectCtrl.fetchProjects)
+router.get('/', projectVal.checkGet, projectCtrl.fetchProjects)
 router.get('/:id', projectCtrl.fetchProjectDetails)
-router.post('/', upload.uploadProjectFiles, projectVal.checkPostProject, projectCtrl.createProject)
-router.put('/:id', projectVal.checkPutProject, projectCtrl.editProject)
+router.post('/', upload.uploadProjectFiles, projectVal.checkPost, projectCtrl.createProject)
+router.put('/:id', projectVal.checkPut, projectCtrl.editProject)
 router.put('/:id/report', upload.uploadReport, projectCtrl.editReport)
 router.post('/:id/author-group', upload.uploadAvatars, projectCtrl.createAuthors)
 router.post('/:id/photos', upload.uploadPhotos, projectCtrl.createPhotos)

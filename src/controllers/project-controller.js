@@ -2,8 +2,29 @@ import * as projectService from '../services/project-service'
 import * as errors from '../utils/errors'
 
 const fetchProjects = async (req, res) => {
-    const projects = await projectService.getProjects()
-    res.status(200).send(projects)
+    // fetch all projects cho admin -> projects
+    // fetch projects by topic -> topics/:id/projects
+    // fetch projects by major -> majors/:id/projects
+    // 
+
+    // /projects
+    const options = req.query
+    try {
+        const projects = await projectService.getProjects(options)
+        res.status(200).send(projects)
+    } catch (error) {
+        switch (error.code) {
+            case 'TOPIC_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'MAJOR_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
 }
 
 const fetchProjectDetails = async (req, res) => {

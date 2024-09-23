@@ -68,7 +68,7 @@ async function removeMajor(id) {
         throw { code: 'MAJOR_NOT_EXIST' }
     }
     const topicCount = await major.countTopics()
-    if(topicCount > 0) {
+    if(topicCount) {
         throw { code: 'MAJOR_HAS_TOPICS' }
     }
     await major.destroy()

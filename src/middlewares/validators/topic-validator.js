@@ -43,6 +43,6 @@ const checkPost = async (req, res, next) => {
         : res.sendStatus(400)
 }
 
-const checkPut = async (req, res, next) => checkPostTopic(req, res, next)
+const checkPut = async (req, res, next) => checkPost(req, res, next)
 
 export { checkGet, checkPost, checkPut }

@@ -53,23 +53,37 @@ async function addTopic(majorId, topic) {
     return major.createTopic(topic)
 }
 
-async function updateTopic(id, topic) {
-    const result = await db.Topic.update(
-        { name: topic.name }, 
-        { where: { id } }
-    )
-    return !!result[0]
+async function updateTopic(topic) {
+    const { id, ...values } = topic
+    const currentTopic = await db.Topic.findByPk(id, {
+        attributes: ['id'],
+    })
+    if(!currentTopic) {
+        throw { code: 'TOPIC_NOT_EXIST' }
+    }
+    const existingTopic = await db.Topic.findOne({
+        attributes: ['id'],
+        where: { name: topic.name },
+    })
+    if(!existingTopic) {
+        await currentTopic.update(values)
+    }else if(existingTopic.id !== id) {
+        throw { code: 'TOPIC_EXISTS' }
+    }
 }
 
 async function removeTopic(id) {
-    const amount = await db.Project.count({ where: { topicId: id } })
-    if(amount > 0) {
-        return false
-    }
-    const affected = await db.Topic.destroy({
-        where: { id },
+    const topic = await db.Topic.findByPk(id, {
+        attributes: ['id'],
     })
-    return !!affected
+    if(!topic) {
+        throw { code: 'TOPIC_NOT_EXIST' }
+    }
+    const projectCount = await topic.countProjects()
+    if(projectCount) {
+        throw { code: 'TOPIC_HAS_PROJECTS' }
+    }
+    await topic.destroy()
 }
 
 export { getTopics, getTopicByName, getTopicById, addTopic, updateTopic, removeTopic }

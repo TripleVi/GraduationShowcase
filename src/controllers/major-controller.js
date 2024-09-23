@@ -54,6 +54,7 @@ const deleteMajor = async (req, res) => {
     try {
         const id = req.params.id
         await majorService.removeMajor(id)
+        res.sendStatus(204)
     } catch (error) {
         switch (error.code) {
             case 'MAJOR_NOT_EXIST':

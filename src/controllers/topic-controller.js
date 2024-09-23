@@ -40,39 +40,43 @@ const createTopic = async (req, res) => {
 }
 
 const editTopic = async (req, res) => {
+    const topic = req.body
+    topic.id = Number(req.params.id)
     try {
-        const newTopic = req.body
-        const id = req.params.id
-        let topic = await topicService.getTopicById(id)
-        if(!topic) {
-            return res.sendStatus(404)
-        }
-        topic = await topicService.getTopicByName(newTopic.name)
-        if(topic && topic.id != id) {
-            return res.status(409).send(error.TOPIC_EXISTS)
-        }
-        const isSuccess = await topicService.updateTopic(id, newTopic)
-        res.sendStatus(isSuccess ? 204 : 409)
+        await topicService.updateTopic(topic)
+        res.sendStatus(204)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(500)
+        switch (error.code) {
+            case 'TOPIC_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'TOPIC_EXISTS':
+                res.status(409).send(errors.TOPIC_EXISTS)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
     }
 }
 
 const deleteTopic = async (req, res) => {
     try {
-        const id = req.params.id
-        const topic = await topicService.getTopicById(id)
-        if(!topic) {
-            return res.sendStatus(404)
-        }
-        const isSuccess = await topicService.removeTopic(id)
-        isSuccess 
-            ? res.sendStatus(204) 
-            : res.status(409).send(error.TOPIC_HAS_PROJECTS)
+        const id = Number(req.params.id)
+        await topicService.removeTopic(id)
+        res.sendStatus(204)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(500)
+        switch (error.code) {
+            case 'TOPIC_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'TOPIC_HAS_PROJECTS':
+                res.status(409).send(errors.TOPIC_HAS_PROJECTS)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
     }
 }
 

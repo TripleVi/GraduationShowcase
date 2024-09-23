@@ -1,5 +1,5 @@
 import * as majorService from '../services/major-service'
-import * as error from '../utils/errors'
+import * as errors from '../utils/errors'
 
 const fetchMajors = async (req, res) => {
     try {
@@ -13,54 +13,59 @@ const fetchMajors = async (req, res) => {
 }
 
 const createMajor = async (req, res) => {
+    const major = req.body
     try {
-        const newMajor = req.body
-        const major = await majorService.getMajorByName(newMajor.name)
-        if(major) {
-            return res.status(409).send(error.MAJOR_EXISTS)
-        }
-        const created = await majorService.addMajor(newMajor)
-        res.status(201).send(created)
+        const result = await majorService.addMajor(major)
+        res.status(201).send(result)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(500)
+        switch (error.code) {
+            case 'MAJOR_EXISTS':
+                res.status(400).send(errors.MAJOR_EXISTS)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
     }
 }
 
 const editMajor = async (req, res) => {
+    const major = req.body
+    major.id = Number(req.params.id)
     try {
-        const newMajor = req.body
-        const id = req.params.id
-        let major = await majorService.getMajorById(id)
-        if(!major) {
-            return res.sendStatus(404)
-        }
-        major = await majorService.getMajorByName(newMajor.name)
-        if(major && major.id != id) {
-            return res.status(409).send(error.MAJOR_EXISTS)
-        }
-        const isSuccess = await majorService.updateMajor(id, newMajor)
-        res.sendStatus(isSuccess ? 204 : 409)
+        await majorService.updateMajor(major)
+        res.sendStatus(204)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(500)
+        switch (error.code) {
+            case 'MAJOR_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'MAJOR_EXISTS':
+                res.status(400).send(errors.MAJOR_EXISTS)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
     }
 }
 
 const deleteMajor = async (req, res) => {
     try {
         const id = req.params.id
-        const major = await majorService.getMajorById(id)
-        if(!major) {
-            return res.sendStatus(404)
-        }
-        const isSuccess = await majorService.removeMajor(id)
-        isSuccess 
-            ? res.sendStatus(204) 
-            : res.status(409).send(error.MAJOR_HAS_TOPICS)
+        await majorService.removeMajor(id)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(500)
+        switch (error.code) {
+            case 'MAJOR_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'MAJOR_HAS_TOPICS':
+                res.status(409).send(errors.MAJOR_HAS_TOPICS)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
     }
 }
 

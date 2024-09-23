@@ -1,6 +1,6 @@
 import db from '../models'
 
-export async function getMajors(options) {
+async function getMajors(options) {
     const upperLimit = 25
     const {
         limit = upperLimit,
@@ -21,7 +21,7 @@ export async function getMajors(options) {
     return { data: majors, metadata }
 }
 
-export async function getMajorByName(name) {
+async function getMajorByName(name) {
     return db.Major.findOne({
         attributes: { exclude: ['createdAt', 'updatedAt'] },
         raw: true,
@@ -29,33 +29,49 @@ export async function getMajorByName(name) {
     })
 }
 
-export async function getMajorById(id) {
+async function getMajorById(id) {
     return db.Major.findByPk(id, {
         attributes: { exclude: ['createdAt', 'updatedAt'] },
         raw: true,
     })
 }
 
-export async function addMajor(major) {
-    const created = await db.Major.create(major)
-    const { createdAt, updatedAt, ...rest } = created.dataValues
-    return rest
-}
-
-export async function updateMajor(id, major) {
-    const result = await db.Major.update(major, {
-        where: { id },
+async function addMajor(major) {
+    const count = await db.Major.count({ 
+        where: { name: major.name },
     })
-    return !!result[0]
-}
-
-export async function removeMajor(id) {
-    const amount = await db.Topic.count({ where: { majorId: id } })
-    if(amount > 0) {
-        return false
+    if(count) {
+        throw { code: 'MAJOR_EXISTS' }
     }
-    const affected = await db.Major.destroy({
-        where: { id },
-    })
-    return !!affected
+    return db.Major.create(major)
 }
+
+async function updateMajor(major) {
+    const currentMajor = await db.Major.findByPk(major.id)
+    if(!currentMajor) {
+        throw { code: 'MAJOR_NOT_EXIST' }
+    }
+    const existingMajor = await db.Major.findOne({
+        attributes: ['id'],
+        where: { name: major.name },
+    })
+    if(!existingMajor) {
+        await currentMajor.update(major)
+    }else if(existingMajor.id !== major.id) {
+        throw { code: 'MAJOR_EXISTS' }
+    }
+}
+
+async function removeMajor(id) {
+    const major = await db.Major.findByPk(id)
+    if(!major) {
+        throw { code: 'MAJOR_NOT_EXIST' }
+    }
+    const topicCount = await major.countTopics()
+    if(topicCount > 0) {
+        throw { code: 'MAJOR_HAS_TOPICS' }
+    }
+    await major.destroy()
+}
+
+export { getMajors, getMajorByName, getMajorById, addMajor, updateMajor, removeMajor }

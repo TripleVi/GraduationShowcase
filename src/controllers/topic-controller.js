@@ -24,12 +24,12 @@ const createTopic = async (req, res) => {
         const newTopic = req.body
         const majorId = req.params.id
         const topic = await topicService.getTopicByName(newTopic.name)
-        if(topic) {
-            return res.status(409).send(error.TOPIC_EXISTS)
-        }
         const major = await getMajorById(majorId)
         if(!major) {
             return res.status(400).send(error.MAJOR_NOT_EXIST)
+        }
+        if(topic) {
+            return res.status(409).send(error.TOPIC_EXISTS)
         }
         const created = await topicService.addTopic(newTopic)
         res.status(201).send(created)

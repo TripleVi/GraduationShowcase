@@ -33,21 +33,15 @@ import * as storageService from './storage-service'
 // }
 
 async function getProjects(params) {
+    // sort: year, views, and likes
+    // search: title, year, author, hashtag
     const upperLimit = 25
     const { m, t, limit=upperLimit, offset=0, search, sort } = params
-
-    // sort: title, year, views, and likes -> ?sort=title
-    // search: title, year, author, hashtag
     if(limit === 0) {
         return { data: [] }
     }
-
-    const options = {
+    let options = {
         attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
-        subQuery: false,
-        offset,
-        limit: Math.min(limit, upperLimit),
-        order: [['createdAt', 'DESC']],
         include: [
             {
                 model: db.Topic,
@@ -60,6 +54,10 @@ async function getProjects(params) {
                 through: { attributes: [] },
             }
         ],
+        order: [['createdAt', 'DESC']],
+        offset,
+        limit: Math.min(limit, upperLimit),
+        subQuery: false,
     }
     const countOptions = { distinct: true, where: {}, include: [] }
     if(t) {
@@ -72,6 +70,11 @@ async function getProjects(params) {
             attributes: [],
             where: { majorId: m },
         })
+    }
+    if(sort) {
+        const type = sort[0] == '+' ? 'ASC' : 'DESC'
+        const field = sort.slice(1)
+        options.order = [[field, type]]
     }
     if(search) {
         const year = Number(search)
@@ -97,46 +100,62 @@ async function getProjects(params) {
                 where: { name },
             })
         }else {
-            // literal(`SUM(DISTINCT(MATCH(Project.title) AGAINST(:search))) AS title_store`),
-            // literal(`SUM(MATCH(authors.name) AGAINST(:search)) AS name_score`),
-            // const projects = await db.Project.findAll({
-            //     attributes: [
-            //         'id',
-            //         literal(`SUM(DISTINCT(MATCH(Project.title) AGAINST(:search))) AS title_store`),
-            //         literal(`SUM(MATCH(authors.name) AGAINST(:search)) AS name_score`),
-            //     ],
-            //     include: [
-            //         ...countOptions.include,
-            //         {
-            //             model: db.Author,
-            //             attributes: [],
-            //         }
-            //     ],
-            //     where: {
-            //         ...countOptions.where,
-            //         [Op.or]: [
-            //             literal(`MATCH(Project.title) AGAINST(:search)`),
-            //             literal(`MATCH(authors.name) AGAINST(:search)`),
-            //         ],
-            //     },
-            //     group: 'Project.id',
-            //     order: [[literal('title_store + name_score'), 'DESC']],
-            //     replacements: { search }
-            // })
-            // const ids = projects.map(p => p.id).slice(options.offset, options.limit)
-            // options.where = { id: ids }
-            // options.order = [[literal('FIELD(Project.id, :ids)'), 'DESC']]
-            // options.replacements = { ids }
-
-            // await db.Project.findAll({
-
-            // })
+            countOptions.include.push({
+                model: db.Author,
+                attributes: [],
+            })
+            countOptions.where[Op.or] = [
+                literal(`MATCH(Project.title) AGAINST(:search)`),
+                literal(`MATCH(authors.name) AGAINST(:search)`),
+            ]
+            countOptions.replacements = { search }
+            if(sort) {
+                options.include.push({
+                    model: db.Author,
+                    attributes: [],
+                })
+                options.where = {
+                    [Op.or]: [
+                        literal(`MATCH(Project.title) AGAINST(:search)`),
+                        literal(`MATCH(authors.name) AGAINST(:search)`),
+                    ]
+                }
+            }else {
+                const projects = await db.Project.findAll({
+                    ...countOptions,
+                    attributes: [
+                        'id',
+                        literal(`SUM(DISTINCT(MATCH(Project.title) AGAINST(:search))) AS title_store`),
+                        literal(`SUM(MATCH(authors.name) AGAINST(:search)) AS name_score`),
+                    ],
+                    group: 'Project.id',
+                    order: [[literal('title_store + name_score'), 'DESC']],
+                    offset: options.offset,
+                    limit: options.limit,
+                })
+                const ids = projects.map(p => p.id)
+                const temp = options
+                options = {
+                    attributes: temp.attributes,
+                    include: [
+                        {
+                            model: db.Topic,
+                            attributes: ['id', 'name'],
+                            required: true,
+                        },
+                        {
+                            model: db.Hashtag,
+                            attributes: ['name'],
+                            through: { attributes: [] },
+                        }
+                    ],
+                    where: { id: ids },
+                    order: [[literal('FIELD(Project.id, :ids)'), 'DESC']],
+                    replacements: { ids },
+                    subQuery: false,
+                }
+            }
         }
-    }
-    if(sort) {
-        const type = sort[0] == '+' ? 'ASC' : 'DESC'
-        const field = sort.slice(1)
-        options.order = [[field, type]]
     }
     const totalItems = await db.Project.count(countOptions)
     const metadata = { totalItems }

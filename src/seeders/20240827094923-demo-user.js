@@ -14,24 +14,24 @@ module.exports = {
     */
 
     // Admin
-    // return queryInterface.bulkInsert('User', [{
-    //   email: 'vuongvvgch190692@fpt.edu.vn',
-    //   username: 'vuongvvgch190692',
-    //   password: '$2a$10$QwzYGWm9DPzDq/Q9/0Z9yeANa7Tugp8f./j/cRbuYdS3QfK00r3fS',
-    //   role_id: 1,
-    //   created_at: new Date(),
-    //   updated_at: new Date(),
-    // }]);
-
-    // User
-    return queryInterface.bulkInsert('user', [{
-      email: 'vuongvu061101@gmail.com',
-      username: 'rosie_cheek01',
-      password: '$2a$10$eHsHYbOPTRCm2sxezZFgwuCVXex.aH.ZzTx5vZKDpl5vXp1cFuCL.',
-      role_id: 2,
+    await queryInterface.bulkInsert('user', [{
+      email: 'vuongvvgch190692@fpt.edu.vn',
+      username: 'vuongvvgch190692',
+      password: '$2a$10$QwzYGWm9DPzDq/Q9/0Z9yeANa7Tugp8f./j/cRbuYdS3QfK00r3fS',
+      role_id: 1,
       created_at: new Date(),
       updated_at: new Date(),
     }]);
+
+    // User
+    // return queryInterface.bulkInsert('user', [{
+    //   email: 'vuongvu061101@gmail.com',
+    //   username: 'rosie_cheek01',
+    //   password: '$2a$10$eHsHYbOPTRCm2sxezZFgwuCVXex.aH.ZzTx5vZKDpl5vXp1cFuCL.',
+    //   role_id: 2,
+    //   created_at: new Date(),
+    //   updated_at: new Date(),
+    // }]);
   },
 
   async down (queryInterface, Sequelize) {

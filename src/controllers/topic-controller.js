@@ -1,6 +1,5 @@
 import * as topicService from '../services/topic-service'
-import { getMajorById } from '../services/major-service'
-import * as error from '../utils/errors'
+import * as errors from '../utils/errors'
 
 const fetchTopics = async (req, res) => {
     const options = req.query
@@ -21,21 +20,22 @@ const fetchTopics = async (req, res) => {
 
 const createTopic = async (req, res) => {
     try {
-        const newTopic = req.body
-        const majorId = req.params.id
-        const topic = await topicService.getTopicByName(newTopic.name)
-        const major = await getMajorById(majorId)
-        if(!major) {
-            return res.status(400).send(error.MAJOR_NOT_EXIST)
-        }
-        if(topic) {
-            return res.status(409).send(error.TOPIC_EXISTS)
-        }
-        const created = await topicService.addTopic(newTopic)
-        res.status(201).send(created)
+        const topic = req.body
+        const majorId = Number(req.params.id)
+        const result = await topicService.addTopic(majorId, topic)
+        res.status(201).send(result)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(500)
+        switch (error.code) {
+            case 'MAJOR_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'TOPIC_EXISTS':
+                res.status(409).send(errors.TOPIC_EXISTS)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
     }
 }
 

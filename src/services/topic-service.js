@@ -39,10 +39,18 @@ async function getTopicById(id) {
     })
 }
 
-async function addTopic(topic) {
-    const created = await db.Topic.create(topic)
-    const { createdAt, updatedAt, ...rest } = created.dataValues
-    return rest
+async function addTopic(majorId, topic) {
+    const major = await db.Major.findByPk(majorId)
+    if(!major) {
+        throw { code: 'MAJOR_NOT_EXIST' }
+    }
+    const topicCount = await db.Topic.count({
+        where: { name: topic.name },
+    })
+    if(topicCount) {
+        throw { code: 'TOPIC_EXISTS' }
+    }
+    return major.createTopic(topic)
 }
 
 async function updateTopic(id, topic) {

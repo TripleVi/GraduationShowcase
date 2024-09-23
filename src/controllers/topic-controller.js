@@ -62,7 +62,7 @@ const editTopic = async (req, res) => {
 
 const deleteTopic = async (req, res) => {
     try {
-        const id = Number(req.params.id)
+        const id = req.params.id
         await topicService.removeTopic(id)
         res.sendStatus(204)
     } catch (error) {

@@ -24,6 +24,7 @@ const checkPost = async (req, res, next) => {
             return true
         }, bail: true }, isLength: { options: { min: 3, max: 24 } }, escape: true },
     }, ['body']).run(req)
+    
     const result = validationResult(req)
     if(!result.isEmpty()) {
         return res.status(400).send({ errors: result.array() })

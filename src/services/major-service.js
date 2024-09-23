@@ -1,39 +1,20 @@
 import db from '../models'
 
-async function getMajors(options) {
+async function getMajors(params) {
     const upperLimit = 25
-    const {
-        limit = upperLimit,
-        offset = 0,
-    } = options
+    const { limit = upperLimit, offset = 0 } = params
     const totalItems = await db.Major.count()
     const metadata = { totalItems }
-    if(limit === 0) {
+    if(!limit || !totalItems) {
         return { data: [], metadata }
     }
     const majors = await db.Major.findAll({
-        attributes: { exclude: ['createdAt', 'updatedAt'] },
-        raw: true,
-        order: [['name', 'ASC']],
+        attributes: ['id', 'name'],
+        order: [['createdAt', 'DESC']],
         offset,
         limit: Math.min(limit, upperLimit),
     })
     return { data: majors, metadata }
-}
-
-async function getMajorByName(name) {
-    return db.Major.findOne({
-        attributes: { exclude: ['createdAt', 'updatedAt'] },
-        raw: true,
-        where: { name }
-    })
-}
-
-async function getMajorById(id) {
-    return db.Major.findByPk(id, {
-        attributes: { exclude: ['createdAt', 'updatedAt'] },
-        raw: true,
-    })
 }
 
 async function addMajor(major) {
@@ -74,4 +55,4 @@ async function removeMajor(id) {
     await major.destroy()
 }
 
-export { getMajors, getMajorByName, getMajorById, addMajor, updateMajor, removeMajor }
+export { getMajors, addMajor, updateMajor, removeMajor }

@@ -8,6 +8,6 @@ const router = Router()
 
 router.get('/', topicVal.checkGet, topicCtrl.fetchTopics)
 router.put('/:id', verifyJWT, isAdmin, topicVal.checkPut, topicCtrl.editTopic)
-router.delete('/:id', verifyJWT, isAdmin, topicCtrl.deleteTopic)
+router.delete('/:id', verifyJWT, isAdmin, topicVal.checkDelete, topicCtrl.deleteTopic)
 
 export default router

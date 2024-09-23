@@ -45,4 +45,14 @@ const checkPost = async (req, res, next) => {
 
 const checkPut = async (req, res, next) => checkPost(req, res, next)
 
-export { checkGet, checkPost, checkPut }
+const checkDelete = (req, res, next) => {
+    const id = req.params.id.trim()
+    const pattern = /^\d+$/
+    if(pattern.test(id)) {
+        req.params.id = parseInt(id)
+        return next()
+    }
+    res.sendStatus(404)
+}
+
+export { checkGet, checkPost, checkPut, checkDelete }

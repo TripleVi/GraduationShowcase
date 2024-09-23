@@ -12,7 +12,6 @@ router.get('/', val.checkGet, ctrl.fetchMajors)
 router.post('/', verifyJWT, isAdmin, val.checkPost, ctrl.createMajor)
 router.put('/:id', verifyJWT, isAdmin, val.checkPut, ctrl.editMajor)
 router.delete('/:id', verifyJWT, isAdmin, ctrl.deleteMajor)
-router.get('/:id/topics', topicVal.checkGet, topicCtrl.fetchTopicsByMajor)
 router.post('/:id/topics', verifyJWT, topicVal.checkPost, topicCtrl.createTopic)
 
 export default router

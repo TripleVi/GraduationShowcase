@@ -1,11 +1,8 @@
 import { checkSchema, matchedData, validationResult } from 'express-validator'
 
 const checkGet = async (req, res, next) => {
-    req.params.id = req.params.id.trim()
-    if(!req.params.id) {
-        return res.sendStatus(404)
-    }
     await checkSchema({
+        m: { optional: true, trim: true, notEmpty: true },
         limit: { optional: true, isInt: { options: { min: 0, max: 25 } }, toInt: true },
         offset: { optional: true, isInt: { options: { min: 0 } }, toInt: true },
     }, ['query']).run(req)

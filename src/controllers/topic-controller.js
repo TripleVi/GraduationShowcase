@@ -2,11 +2,10 @@ import * as topicService from '../services/topic-service'
 import { getMajorById } from '../services/major-service'
 import * as error from '../utils/errors'
 
-const fetchTopicsByMajor = async (req, res) => {
-    const majorId = req.params.id
+const fetchTopics = async (req, res) => {
     const options = req.query
     try {
-        const topics = await topicService.getTopicsByMajor(majorId, options)
+        const topics = await topicService.getTopics(options)
         res.status(200).send(topics)
     } catch (error) {
         switch (error.code) {
@@ -77,4 +76,4 @@ const deleteTopic = async (req, res) => {
     }
 }
 
-export { fetchTopicsByMajor, createTopic, editTopic, deleteTopic }
+export { fetchTopics, createTopic, editTopic, deleteTopic }

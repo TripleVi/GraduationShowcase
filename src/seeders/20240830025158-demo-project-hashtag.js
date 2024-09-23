@@ -5,16 +5,16 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     return queryInterface.bulkInsert('project_hashtag', [
       {
-        project_id: 1,
+        project_id: 2,
+        hashtag_id: 1,
+      },
+      {
+        project_id: 2,
         hashtag_id: 2,
       },
       {
-        project_id: 1,
-        hashtag_id: 4,
-      },
-      {
-        project_id: 1,
-        hashtag_id: 5,
+        project_id: 2,
+        hashtag_id: 3,
       },
     ]);
   },

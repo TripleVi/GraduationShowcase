@@ -7,7 +7,7 @@ const checkGet = async (req, res, next) => {
         limit: { optional: true, isInt: { options: { min: 0, max: 25 } }, toInt: true },
         offset: { optional: true, isInt: { options: { min: 0 } }, toInt: true },
         sort: { optional: true, trim: true, notEmpty: { bail: true }, toLowerCase: true, custom: { options: value => {
-            const fields = ['year', 'view', 'like']
+            const fields = ['year', 'views', 'likes']
             const pattern = /^([+-]?)([a-zA-Z][a-zA-Z_]*[a-zA-Z])$/
             const results = value.match(pattern)
             if(!results || !fields.includes(results[2])) {

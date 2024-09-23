@@ -1,4 +1,4 @@
-import { Op } from 'sequelize'
+import { literal, Op } from 'sequelize'
 
 import db from '../models'
 import * as storageService from './storage-service'
@@ -33,95 +33,124 @@ import * as storageService from './storage-service'
 // }
 
 async function getProjects(params) {
-    
-    
     const upperLimit = 25
     const { m, t, limit=upperLimit, offset=0, search, sort } = params
-    return await db.Project.findAll({
+
+    // sort: title, year, views, and likes -> ?sort=title
+    // search: title, year, author, hashtag
+    if(limit === 0) {
+        return { data: [] }
+    }
+
+    const options = {
         attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
         subQuery: false,
-        where: {
-            [Op.or]: [
-                { title: { [Op.like]: `%${search}%` } },
-                { year: { [Op.like]: `%${search}%` } },
-                { '$authors.name$': { [Op.like]: `%${search}%` } },
-                { '$hashtags.name$': { [Op.like]: `%${search}%` } },
-            ],
-        },
-        limit: 25,
-        // // order: [['createdAt', 'DESC']],
+        offset,
+        limit: Math.min(limit, upperLimit),
+        order: [['createdAt', 'DESC']],
         include: [
             {
-                model: db.Author,
-                attributes: [],
+                model: db.Topic,
+                attributes: ['id', 'name'],
+                required: true,
             },
             {
                 model: db.Hashtag,
                 attributes: ['name'],
                 through: { attributes: [] },
-            },
+            }
         ],
-    })
-    // sort: title, year, views, and likes -> ?sort=title
-    // search: title, year, author, hashtag
+    }
+    const countOptions = { distinct: true, where: {}, include: [] }
+    if(t) {
+        options.include[0].where = { id: t }
+        countOptions.where.topicId = t
+    }else if(m) {
+        options.include[0].where = { majorId: m }
+        countOptions.include.push({
+            model: db.Topic,
+            attributes: [],
+            where: { majorId: m },
+        })
+    }
+    if(search) {
+        const year = Number(search)
+        const hashtagPattern = /^#[^\s]*$/
+        if(!isNaN(year)) {
+            options.where = { year }
+            countOptions.where.year = year
+        }else if(hashtagPattern.test(search)) {
+            const name = search.slice(1)
+            options.where = {
+                id: {
+                    [Op.in]: literal(`(
+                        SELECT ph.project_id FROM project_hashtag AS ph 
+                        INNER JOIN hashtag AS h ON ph.hashtag_id = h.id AND h.name = ?
+                    )`)
+                }
+            }
+            options.replacements = [name]
+            countOptions.include.push({
+                model: db.Hashtag,
+                attributes: [],
+                through: { attributes: [] },
+                where: { name },
+            })
+        }else {
+            // literal(`SUM(DISTINCT(MATCH(Project.title) AGAINST(:search))) AS title_store`),
+            // literal(`SUM(MATCH(authors.name) AGAINST(:search)) AS name_score`),
+            // const projects = await db.Project.findAll({
+            //     attributes: [
+            //         'id',
+            //         literal(`SUM(DISTINCT(MATCH(Project.title) AGAINST(:search))) AS title_store`),
+            //         literal(`SUM(MATCH(authors.name) AGAINST(:search)) AS name_score`),
+            //     ],
+            //     include: [
+            //         ...countOptions.include,
+            //         {
+            //             model: db.Author,
+            //             attributes: [],
+            //         }
+            //     ],
+            //     where: {
+            //         ...countOptions.where,
+            //         [Op.or]: [
+            //             literal(`MATCH(Project.title) AGAINST(:search)`),
+            //             literal(`MATCH(authors.name) AGAINST(:search)`),
+            //         ],
+            //     },
+            //     group: 'Project.id',
+            //     order: [[literal('title_store + name_score'), 'DESC']],
+            //     replacements: { search }
+            // })
+            // const ids = projects.map(p => p.id).slice(options.offset, options.limit)
+            // options.where = { id: ids }
+            // options.order = [[literal('FIELD(Project.id, :ids)'), 'DESC']]
+            // options.replacements = { ids }
 
-    const options = {
-        offset,
-        limit: Math.min(limit, upperLimit),
-        order: [['createdAt', 'DESC']],
+            // await db.Project.findAll({
+
+            // })
+        }
     }
     if(sort) {
         const type = sort[0] == '+' ? 'ASC' : 'DESC'
         const field = sort.slice(1)
         options.order = [[field, type]]
     }
-    const metadata = {}
-    // if(limit === 0) {
-    //     return { data: [], metadata }
-    // }
-    let projects = []
-    if(t) {
-        const topic = await db.Topic.findByPk(t)
-        if(!topic) {
-            throw { code: 'TOPIC_NOT_EXIST' }
+    const totalItems = await db.Project.count(countOptions)
+    const metadata = { totalItems }
+    const projects = await db.Project.findAll(options)
+    const data = projects.map(p => {
+        const topic = p.topic.dataValues
+        const hashtags = p.hashtags.map(h => h.name)
+        return {
+            ...p.dataValues,
+            topic,
+            hashtags,
         }
-        // const totalItems = topic.count
-        projects = await topic.getProjects(options)
-    }else if(m) {
-        const major = await db.Major.findByPk(m)
-        if(!major) {
-            throw { code: 'MAJOR_NOT_EXIST' }
-        }
-        projects = await db.Project.findAll({
-            limit: 25,
-            attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
-            include: [
-                {
-                    model: db.Topic,
-                    attributes: { exclude: ['majorId', 'createdAt', 'updatedAt'] },
-                    include: {
-                        attributes: [],
-                        model: db.Major,
-                        where: { id: m }
-                    }
-                }
-            ]
-        })
-    }else {
-        projects = await db.Project.findAll({
-            attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
-            limit: 25,
-            order: [['createdAt', 'DESC']],
-            include: [
-                {
-                    model: db.Topic,
-                    attributes: ['id', 'name'],
-                },
-            ],
-        })
-    }
-
-    return projects
+    })
+    return { data, metadata }
 }
 
 async function getProjectById(id) {

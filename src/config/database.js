@@ -2,11 +2,11 @@ require('dotenv').config();
 
 module.exports = {
   'development': {
-    'host': process.env.DB_MYSQL_HOST,
-    'port': process.env.DB_MYSQL_PORT,
-    'database': process.env.DB_MYSQL_DATABASE,
-    'username': process.env.DB_MYSQL_USERNAME,
-    'password': process.env.DB_MYSQL_PASSWORD,
+    'host': process.env.DB_HOST,
+    'port': process.env.DB_PORT,
+    'database': process.env.DB_DATABASE,
+    'username': process.env.DB_USERNAME,
+    'password': process.env.DB_PASSWORD,
     'dialect': 'mysql',
     'define': {
       'freezeTableName': true,

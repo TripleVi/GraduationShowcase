@@ -6,7 +6,7 @@ import { initializeApp, cert } from 'firebase-admin/app'
 
 import initRoutes from './routes'
 import serviceAccount from '../service-account-key.json'
-import { initCronJobs } from './utils/cronjob'
+// import { initCronJobs } from './utils/cronjob'
 
 const app = express()
 

@@ -14,6 +14,7 @@ function initRoutes(app) {
     app.use('/api/v1/authors', authorRouter)
     app.use('/api/v1/comments', commentRouter)
     app.use('/api/v1/settings', settingRouter)
+    app.use('/api/v1/backups/database', settingRouter)
 }
 
 export default initRoutes

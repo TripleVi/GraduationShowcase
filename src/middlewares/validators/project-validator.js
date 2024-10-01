@@ -33,7 +33,7 @@ const checkGet = async (req, res, next) => {
 }
 
 const checkPost = async (req, res, next) => {
-    const avatarCount = req.files.avatars.length
+    const avatarCount = req.files.avatars?.length || 0
     const count = Array(avatarCount).fill(1)
     await checkSchema({
         title: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
@@ -54,25 +54,24 @@ const checkPost = async (req, res, next) => {
         videoId: { optional: true, trim: true, notEmpty: { bail: true }, escape: true },
         topicId: { isInt: true },
         hashtags: { isArray: { options: { max: 5 }, bail: true }, custom: { options: values => {
-            const uniqueValues = new Set(values)
-            if(uniqueValues.size != values.length) {
-                throw new Error('Duplicate values')
+            const seen = new Set(values)
+            if(seen.size == values.length) {
+                return true
             }
-            return true
+            throw new Error('Duplicate values')
         } } },
         'hashtags.*': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
         authors: { isArray: { options: { min: avatarCount, max: 10 } }, custom: { options: values => {
-            const uniqueValues = new Set(values.map(v => v.email))
-            if(uniqueValues.size != values.length) {
-                throw new Error('Duplicate emails')
+            const seen = new Set(values.map(v => v.email))
+            if(seen.size == values.length) {
+                return true
             }
-            return true
+            throw new Error('Duplicate emails')
         } } },
         'authors.*.name': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
         'authors.*.email': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
         'authors.*.fileIndex': { optional: true, isInt: { options: { min: 0, max: avatarCount-1 }, bail: true }, custom: { options: value => !--count[value], bail: true } },
     }, ['body']).run(req)
-
     const result = validationResult(req)
     if(!result.isEmpty()) {
         return res.status(400).send({ errors: result.array() })
@@ -102,17 +101,17 @@ const checkPut = async (req, res, next) => {
             return true
         }, bail: true }, isLength: { options: { min: 3, max: 65000 } }, escape: true },
         year: { isInt: { options: { min: 2009, max: 2150 } } },
-        videoId: { isString: { if: value => value !== null, bail: true }, trim: true, notEmpty: { bail: true }, escape: true },
         topicId: { isInt: true },
+        videoId: { isString: { if: value => value !== null, bail: true }, trim: true, notEmpty: { bail: true }, escape: true },
         hashtags: { isArray: { options: { max: 5 }, bail: true }, custom: { options: values => {
-            const uniqueValues = new Set(values)
-            if(uniqueValues.size != values.length) {
-                throw new Error('Duplicate values')
+            const seen = new Set(values)
+            if(seen.size == values.length) {
+                return true
             }
-            return true
+            throw new Error('Duplicate values')
         } } },
         'hashtags.*': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
-        id: { in: 'params', trim: true },
+        id: { in: 'params', trim: true, toInt: true },
     }, ['body']).run(req)
 
     const result = validationResult(req)

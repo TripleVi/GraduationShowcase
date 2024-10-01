@@ -3,44 +3,66 @@ import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 
-function backupTask() {
-    const filename = `${process.env.DB_DATABASE}-${Date.now()}.sql`
-    const filepath = path.join(process.env.DB_BACKUP_DIR, filename)
-    const wstream = fs.createWriteStream(filepath);
+let task
 
-    console.log('---------------------')
-    console.log('Running Database Backup Cron Job')
-    
-    const mysqldump = spawn('mysqldump', [
-        '-u',
-        process.env.DB_USERNAME,
-        '-h',
-        process.env.DB_HOST,
-        `-p${process.env.DB_PASSWORD}`,
-        process.env.DB_DATABASE,
-    ])
-    
-    mysqldump
-        .stdout
-        .pipe(wstream)
-        .on('finish', function () {
-            console.log('Completed')
+function initBackupTask(hour) {
+    return cron.schedule(`0 ${hour} * * *`, () => {
+        const logWStream = fs.createWriteStream(process.env.DB_BACKUP_LOG, {
+            flags: 'a',
         })
-        .on('error', function (err) {
-            console.log(err)
-        });
+        const filename = `${process.env.DB_DATABASE}-${Date.now()}.sql`
+        const filepath = path.join(process.env.DB_BACKUP_DIR, filename)
+        const dbWStream = fs.createWriteStream(filepath)
+        const mysqldump = spawn('mysqldump', [
+            '-u',
+            process.env.DB_USERNAME,
+            '-h',
+            process.env.DB_HOST,
+            `-p${process.env.DB_PASSWORD}`,
+            process.env.DB_DATABASE,
+        ])
+        let dataWritten = false
+        logWStream.write(`Starting backup [${new Date().toISOString()}]\n`)
+        mysqldump.stdout.once('data', () => dataWritten = true)
+        mysqldump.stdout.pipe(dbWStream).on('finish', () => {
+            if(!dataWritten) {
+                return fs.unlink(filepath, _ => {})
+            }
+            logWStream.write(`Sql dump created\n`)
+            logWStream.write(`Backup complete [${new Date().toISOString()}]\n`)
+        })
+        mysqldump.stderr.on('data', err => logWStream.write(err))
+        mysqldump.on('close', () => {
+            logWStream.write('---------------------------------------------\n')
+            logWStream.end()
+        })
+    }, {
+        scheduled: false,
+        timezone: 'UTC',
+    })
+    fs.stat()
+}
+
+function initCronJobs() {
+    if(task) {
+        throw new Error('Cron jobs was initialized')
+    }
+    task = initBackupTask(3)
+    task.start()
 }
 
 
-// const backupTask = cron.schedule('* * * * *', () => {
-//     console.log("hello world")
-// }, {
-//     scheduled: true,
-//     timezone: "America/Sao_Paulo"
-// })
+function scheduleTask(options) {
+    const { hours, interval, retainDays } = options
+    let hour = 3
+    if(hours) {
+        hour = hours.length == 1 ? hours[0] : hours.join(',')
+    }else if(interval) {
+        hour = `*/${interval}`
+    }
+    task.stop()
+    task = initBackupTask(hour)
+    task.start()
+}
 
-// spawn('mysqldump', [], {env: {TZ}})
-
-// backupTask.start()
-
-export { backupTask }
+export { initCronJobs, scheduleTask }

@@ -280,6 +280,10 @@ async function updateProject(id, project) {
     if(!currentProject) {
         throw { code: 'PROJECT_NOT_EXIST' }
     }
+    const topic = await db.Topic.findByPk(project.topicId)
+    if(!topic) {
+        throw { code: 'TOPIC_NOT_EXIST' }
+    }
     const { hashtags, ...values } = project
     const transaction = await db.sequelize.transaction()
     try {
@@ -306,7 +310,6 @@ async function updateProject(id, project) {
         await Promise.all(hashtagPromises)
 
         await transaction.commit()
-        return true
     } catch (error) {
         await transaction.rollback()
         throw error

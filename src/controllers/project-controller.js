@@ -75,14 +75,20 @@ const editProject = async (req, res) => {
     const id = req.params.id
     const project = req.body
     try {
-        const isSuccess = await projectService.updateProject(id, project)
-        res.sendStatus(isSuccess ? 204 : 409)
+        await projectService.updateProject(id, project)
+        res.sendStatus(204)
     } catch (error) {
-        console.log(error)
-        if(error.code == 'PROJECT_NOT_EXIST') {
-            return res.sendStatus(404)
+        switch (error.code) {
+            case 'PROJECT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'TOPIC_NOT_EXIST':
+                res.status(409).send(errors.TOPIC_NOT_EXIST)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
         }
-        res.sendStatus(500)
     }
 }
 

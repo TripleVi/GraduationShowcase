@@ -6,6 +6,7 @@ import { initializeApp, cert } from 'firebase-admin/app'
 
 import initRoutes from './routes'
 import serviceAccount from '../service-account-key.json'
+import { initCronJobs } from './utils/cronjob'
 
 const app = express()
 
@@ -23,6 +24,8 @@ initializeApp({
 app.use(bodyParser.json())
 
 initRoutes(app)
+
+// initCronJobs()
 
 const port = process.env.PORT || 3000
 app.listen(port, async () => {

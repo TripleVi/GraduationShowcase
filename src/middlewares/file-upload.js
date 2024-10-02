@@ -29,25 +29,22 @@ function filename(_, file, cb) {
     cb(null, filename)
 }
 
-function fileFilter(req, file, cb) {
-    const { mimeTypes } = types[typesForFileFields[file.fieldname]]
-    if(mimeTypes.includes(file.mimetype)) {
-        return cb(null, true)
-    }
-    console.log(file)
-    cb('null', false)
-}
-
-function checkFileSizes(files) {
+function validateFiles(files) {
     for (const file of files) {
-        const { maxSize } = types[typesForFileFields[file.fieldname]]
-        if(file.size <= maxSize) {
-            continue
+        const { mimeTypes, maxSize } = types[typesForFileFields[file.fieldname]]
+        if(!mimeTypes.includes(file.mimetype)) {
+            return {
+                code: 'INVALID_MIMETYPE',
+                field: file.fieldname,
+                message: `Only ${mimeTypes.join(',')} accepted`,
+            }
         }
-        return {
-            code: 'LIMIT_FILE_SIZE',
-            field: file.fieldname,
-            message: `Maximum file size is ${maxSize/1024/1024} MB`
+        if(file.size > maxSize) {
+            return {
+                code: 'LIMIT_FILE_SIZE',
+                field: file.fieldname,
+                message: `Maximum file size is ${maxSize/1024/1024} MB`
+            }
         }
     }
 }
@@ -80,23 +77,11 @@ function handleMulterError(err) {
 }
 
 function uploadProjectFiles(req, res, next) {
-    let error
     const upload = multer({
         storage: diskStorage({ filename }),
         limits: {
             files: 31,
             fields: 1,
-        },
-        fileFilter: (_, file, cb) => {
-            if(error) return cb(error, false)
-
-            console.log(file)
-            if(file.mimetype === 'image/jpeg') {
-                error = {code:'error'}
-                console.log(file.originalname)
-                return cb(error, false)
-            }
-            cb(null, true)
         },
     }).fields([
         { name: 'photos', maxCount: 20 },
@@ -105,33 +90,28 @@ function uploadProjectFiles(req, res, next) {
     ])
 
     upload(req, res, err => {
-        console.log(req.files)
-        console.log(err)
-        if(!err) {
-            console.log('req.files')
-            return res.sendStatus(204)
-            const files = []
-            for (const e in req.files) {
-                files.push(...e)
-            }
-            const error = checkFileSizes(files)
-            if(error) {
+        if(err) {
+            if(err instanceof MulterError) {
+                const error = handleMulterError(err)
                 return res.status(400).send(error)
             }
-            try {
-                req.body = JSON.parse(req.body.project)
-                next()
-            } catch (error) {
-                res.sendStatus(400)
-            }
-            return
-        }
-        return res.status(400).send('error')
-        if(!(err instanceof MulterError)) {
             console.log(err)
-            return res.sendStatus(204)
+            return res.sendStatus(500)
         }
-        // const error = handleMulterError(err)
+        const files = []
+        for (const key in req.files) {
+            files.push(...req.files[key])
+        }
+        const error = validateFiles(files)
+        if(error) {
+            return res.status(400).send(error)
+        }
+        try {
+            req.body = JSON.parse(req.body.project)
+            next()
+        } catch (error) {
+            res.sendStatus(400)
+        }
     })
 }
 
@@ -143,32 +123,31 @@ function uploadReport(req, res, next) {
     const upload = multer({
         storage: diskStorage({ filename }),
         limits: {
-            fileSize: 1,
             files: 1,
             fields: 0,
         },
-        fileFilter: (_, file, cb) => {
-            if(!types.report.mimetype.includes(file.mimetype)) {
-                
-            }
-            if(file.mimetype != 'application/pdf') {
-                cb(null, false)
-            }
-            cb(null, true)
-        },
     }).single('report')
     upload(req, res, err => {
-        if(!err) {
-            console.log(req.file)
-            return res.sendStatus(204)
-            return next()
-        }
-        if(!(err instanceof MulterError)) {
+        if(err) {
+            if(err instanceof MulterError) {
+                const error = handleMulterError(err)
+                return res.status(400).send(error)
+            }
             console.log(err)
             return res.sendStatus(500)
         }
-        const error = handleMulterError(err)
-        res.status(400).send(error)
+        if(!req.file) {
+            return res.status(400).send({
+                code: 'INVALID_VALUE',
+                location: 'body',
+                field: 'report',
+            })
+        }
+        const error = validateFiles([req.file])
+        if(error) {
+            return res.status(400).send(error)
+        }
+        next()
     })
 }
 
@@ -176,27 +155,29 @@ function uploadAvatars(req, res, next) {
     const upload = multer({
         storage: diskStorage({ filename }),
         limits: {
-            fileSize: 1024 * 1024 * 2,
             files: 10,
             fields: 1,
         }
     }).array('avatars', 10)
     upload(req, res, err => {
-        if(!err) {
-            try {
-                req.body = JSON.parse(req.body.authors)
-                next()
-            } catch (error) {
-                res.sendStatus(400)
+        if(err) {
+            if(err instanceof MulterError) {
+                const error = handleMulterError(err)
+                return res.status(400).send(error)
             }
-            return
-        }
-        if(!(err instanceof MulterError)) {
             console.log(err)
             return res.sendStatus(500)
         }
-        const error = handleMulterError(err)
-        res.status(400).send(error)
+        const error = validateFiles(req.files)
+        if(error) {
+            return res.status(400).send(error)
+        }
+        try {
+            req.body = JSON.parse(req.body.authors)
+            next()
+        } catch (error) {
+            res.sendStatus(400)
+        }
     })
 }
 
@@ -208,21 +189,31 @@ function uploadAvatar(req, res, next) {
     const upload = multer({
         storage: diskStorage({ filename }),
         limits: {
-            fileSize: 1024 * 1024 * 2,
             files: 1,
             fields: 0,
         }
     }).single('avatar')
     upload(req, res, err => {
-        if(!err) {
-            return next()
-        }
-        if(!(err instanceof MulterError)) {
+        if(err) {
+            if(err instanceof MulterError) {
+                const error = handleMulterError(err)
+                return res.status(400).send(error)
+            }
             console.log(err)
             return res.sendStatus(500)
         }
-        const error = handleMulterError(err)
-        res.status(400).send(error)
+        if(!req.file) {
+            return res.status(400).send({
+                code: 'INVALID_VALUE',
+                location: 'body',
+                field: 'report',
+            })
+        }
+        const error = validateFiles([req.file])
+        if(error) {
+            return res.status(400).send(error)
+        }
+        next()
     })
 }
 
@@ -234,22 +225,33 @@ function uploadPhotos(req, res, next) {
     const upload = multer({
         storage: diskStorage({ filename }),
         limits: {
-            fileSize: 1024 * 1024 * 2,
             files: 20,
             fields: 0,
         }
     }).array('photos', 20)
     upload(req, res, err => {
-        if(!err) {
-            return req.files ? next() : res.sendStatus(400)
-        }
-        if(!(err instanceof MulterError)) {
+        if(err) {
+            if(err instanceof MulterError) {
+                const error = handleMulterError(err)
+                return res.status(400).send(error)
+            }
             console.log(err)
             return res.sendStatus(500)
         }
-        const error = handleMulterError(err)
-        res.status(400).send(error)
+        if(!req.files) {
+            return res.status(400).send({
+                code: 'INVALID_VALUE',
+                location: 'body',
+                field: 'photos',
+            })
+        }
+        const error = validateFiles(req.files)
+        if(error) {
+            return res.status(400).send(error)
+        }
+        next()
     })
+
 }
 
 export { uploadProjectFiles, uploadReport, uploadAvatars, uploadAvatar, uploadPhotos }

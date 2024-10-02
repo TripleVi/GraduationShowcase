@@ -96,8 +96,8 @@ const editReport = async (req, res) => {
     const id = req.params.id
     const file = req.file
     try {
-        const isSuccess = await projectService.updateReport(id, file)
-        res.sendStatus(isSuccess ? 204 : 409)
+        await projectService.updateReport(id, file)
+        res.sendStatus(204)
     } catch (error) {
         console.log(error)
         if(error.code == 'PROJECT_NOT_EXIST') {

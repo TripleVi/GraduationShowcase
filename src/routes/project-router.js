@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import { verifyJWT } from '../middlewares/auth'
+import { verifyJWT, isAdmin } from '../middlewares/auth'
 import * as projectCtrl from '../controllers/project-controller'
 import * as commentCtrl from '../controllers/comment-controller'
 import * as upload from '../middlewares/file-upload'
@@ -11,10 +11,11 @@ const router = Router()
 
 router.get('/', projectVal.checkGet, projectCtrl.fetchProjects)
 router.get('/:id', projectCtrl.fetchProjectDetails)
-router.post('/', upload.uploadProjectFiles, projectVal.checkPost, projectCtrl.createProject)
-router.put('/:id', projectVal.checkPut, projectCtrl.editProject)
-router.put('/:id/report', upload.uploadReport, projectCtrl.editReport)
-router.post('/:id/author-group', upload.uploadAvatars, projectCtrl.createAuthors)
+router.post('/', verifyJWT, isAdmin, upload.uploadProjectFiles, projectVal.checkPost, projectCtrl.createProject)
+router.put('/:id', verifyJWT, isAdmin, projectVal.checkPut, projectCtrl.editProject)
+router.delete('/:id', verifyJWT, isAdmin, projectCtrl.deleteProject)
+router.put('/:id/report', verifyJWT, isAdmin, upload.uploadReport, projectCtrl.editReport)
+router.post('/:id/author-group', verifyJWT, isAdmin, upload.uploadAvatars, projectCtrl.createAuthors)
 router.post('/:id/photos', upload.uploadPhotos, projectCtrl.createPhotos)
 router.delete('/:id/photos/:pid', projectCtrl.deletePhoto)
 router.post('/:id/reaction', projectCtrl.createReaction)

@@ -447,7 +447,7 @@ async function removeProject(id) {
         const deletePromises = []
         const deletePromises2 = []
         // delete upstream folder
-        deletePromises2.push(storageService.deleteFolder(`project/${id}`))
+        deletePromises2.push(storageService.deleteFolder(`projects/${id}`))
         // delete project_hashtags
         deletePromises.push(project.setHashtags([], { transaction }))
         // delete authors

@@ -1,5 +1,7 @@
 import { checkSchema, matchedData, validationResult } from 'express-validator'
 
+import { validateId } from './validator'
+
 const checkGet = async (req, res, next) => {
     await checkSchema({
         m: { optional: true, trim: true, notEmpty: true },
@@ -46,10 +48,9 @@ const checkPost = async (req, res, next) => {
 const checkPut = async (req, res, next) => checkPost(req, res, next)
 
 const checkDelete = (req, res, next) => {
-    const id = req.params.id.trim()
-    const pattern = /^\d+$/
-    if(pattern.test(id)) {
-        req.params.id = parseInt(id)
+    const [isValid, id] = validateId(req.params.id) 
+    if(isValid) {
+        req.params.id = id
         return next()
     }
     res.sendStatus(404)

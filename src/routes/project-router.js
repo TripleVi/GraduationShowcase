@@ -10,7 +10,7 @@ import * as commentVal from '../middlewares/validators/comment-validator'
 const router = Router()
 
 router.get('/', projectVal.checkGet, projectCtrl.fetchProjects)
-router.get('/:id', projectCtrl.fetchProjectDetails)
+router.get('/:id', projectVal.checkGetDetail, projectCtrl.fetchProjectDetail)
 router.post('/', verifyJWT, isAdmin, upload.uploadProjectFiles, projectVal.checkPost, projectCtrl.createProject)
 router.put('/:id', verifyJWT, isAdmin, projectVal.checkPut, projectCtrl.editProject)
 router.delete('/:id', verifyJWT, isAdmin, projectCtrl.deleteProject)

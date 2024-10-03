@@ -27,13 +27,10 @@ const fetchProjects = async (req, res) => {
     }
 }
 
-const fetchProjectDetails = async (req, res) => {
-    const id = req.params.id.trim()
-    if(!id) {
-        return res.sendStatus(404)
-    }
+const fetchProjectDetail = async (req, res) => {
     try {
-        const projects = await projectService.getProjectById(id)
+        const id = req.params.id
+        const projects = await projectService.getProjectDetail(id)
         res.status(200).send(projects)
     } catch (error) {
         switch (error.code) {
@@ -228,4 +225,4 @@ const deleteReaction = async (req, res) => {
     }
 }
 
-export { fetchProjects, fetchProjectDetails, createProject, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject, createReaction, deleteReaction }
+export { fetchProjects, fetchProjectDetail, createProject, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject, createReaction, deleteReaction }

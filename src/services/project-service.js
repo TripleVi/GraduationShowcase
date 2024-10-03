@@ -172,15 +172,54 @@ async function getProjects(params) {
     return { data, metadata }
 }
 
-async function getProjectById(id) {
-    const project = await db.Project.findByPk(id)
+async function getProjectDetail(id) {
+    const project = await db.Project.findByPk(id, {
+        attributes: ['id', 'title', 'description', 'year', 'videoId', 'views', 'likes', 'createdAt'],
+        include: [
+            {
+                model: db.Hashtag,
+                attributes: ['name'],
+                through: { attributes: [] },
+            },
+            {
+                model: db.File,
+                as: 'report',
+                attributes: ['url'],
+            },
+            {
+                model: db.Author,
+                attributes: ['id', 'name', 'email'],
+                include: {
+                    model: db.File,
+                    as: 'avatar',
+                    attributes: ['url'],
+                },
+            },
+            {
+                model: db.Photo,
+                attributes: ['id'],
+                include: {
+                    model: db.File,
+                    attributes: ['url'],
+                    required: true,
+                }
+            },
+        ]
+    })
     if(!project) {
         throw { code: 'PROJECT_NOT_EXIST' }
     }
-    const views = project.views + 1
-    db.Project.update({ views }, { where: { id }})
-
-    return project
+    const { hashtags, report, authors, photos, ...data } = project.get()
+    data.hashtags = hashtags.map(h => h.name)
+    data.reportUrl = report ? report.url : null
+    data.authors = authors.map(a => {
+        const { avatar, ...values } = a.get()
+        values.avatarUrl = avatar ? avatar.url : null
+        return values
+    })
+    data.photoUrls = photos.map(p => p.file.url)
+    await project.update({ views: project.views+1 })
+    return data
 }
 
 async function addProject(project, files) {
@@ -217,7 +256,7 @@ async function addProject(project, files) {
                 .bulkCreate(newHashtags, { transaction })
         createPromises.push(
             project.addHashtags([...existingHashtags, ...createdHashtags], { 
-                transaction, 
+                transaction,
             })
         )
         allFiles.forEach(f => f.ref = `projects/${project.id}/${f.filename}`)
@@ -516,4 +555,4 @@ async function removeReaction(id) {
     await project.update(values)
 }
 
-export { getProjects, getProjectById, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject, addReaction, removeReaction }
+export { getProjects, getProjectDetail, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject, addReaction, removeReaction }

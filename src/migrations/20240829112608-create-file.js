@@ -11,7 +11,6 @@ module.exports = {
       },
       url: {
         type: Sequelize.STRING,
-        allowNull: false,
         unique: true,
       },
       name: {
@@ -30,9 +29,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      created_at: {
+      storage_type: {
+        type: Sequelize.ENUM('local', 'cloud'),
         allowNull: false,
-        type: Sequelize.DATE
+        defaultValue: 'local',
+      },
+      created_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
     });
   },

@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     originalName: DataTypes.STRING,
     size: DataTypes.STRING,
-    mimeType: DataTypes.STRING
+    mimeType: DataTypes.STRING,
+    storageType: DataTypes.ENUM
   }, {
     sequelize,
     modelName: 'File',

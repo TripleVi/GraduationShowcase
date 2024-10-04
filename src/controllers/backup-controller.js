@@ -11,4 +11,21 @@ const fetchDBBackups = async (req, res) => {
     }
 }
 
-export { fetchDBBackups }
+const deleteBackup = async (req, res) => {
+    try {
+        const id = req.params.id
+        await backupService.removeBackup(id)
+        res.sendStatus(204)
+    } catch (error) {
+        switch (error.code) {
+            case 'BACKUP_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
+}
+
+export { fetchDBBackups, deleteBackup }

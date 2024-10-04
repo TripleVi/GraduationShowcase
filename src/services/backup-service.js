@@ -22,4 +22,19 @@ async function getDBBackups(params) {
     }
 }
 
-export { getDBBackups }
+async function removeBackup(id) {
+    const backup = await db.File.findOne({
+        attributes: ['id'],
+        where: {
+            id,
+            mimeType: 'application/x-sql',
+            storage_type: 'local',
+        }
+    })
+    if(!backup) {
+        throw { code: 'BACKUP_NOT_EXIST' }
+    }
+    await backup.destroy()
+}
+
+export { getDBBackups, removeBackup }

@@ -1,5 +1,7 @@
 import { checkSchema, matchedData, validationResult } from 'express-validator'
 
+import { validateId } from './validator'
+
 const checkGet = async (req, res, next) => {
     await checkSchema({
         limit: { optional: true, isInt: { options: { min: 1, max: 25 } }, toInt: true },
@@ -18,4 +20,13 @@ const checkGet = async (req, res, next) => {
         : res.sendStatus(400)
 }
 
-export { checkGet }
+const checkDelete = (req, res, next) => {
+    const [isValid, id] = validateId(req.params.id) 
+    if(isValid) {
+        req.params.id = id
+        return next()
+    }
+    res.sendStatus(404)
+}
+
+export { checkGet, checkDelete }

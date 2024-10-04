@@ -1,5 +1,5 @@
 import db from '../models'
-// import { scheduleTask } from '../utils/cronjob'
+import { scheduleTask } from '../utils/cronjob'
 
 async function updateDBBackup(setting) {
     const backup = await db.AppSetting.findOne({

@@ -3,7 +3,14 @@ import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 
+import db from '../models'
+
 let task
+
+function addBackupFile(filepath) {
+    const stats = fs.statSync(filepath)
+    console.log(stats)
+}
 
 function initBackupTask(hour) {
     return cron.schedule(`0 ${hour} * * *`, () => {
@@ -30,6 +37,8 @@ function initBackupTask(hour) {
             }
             logWStream.write(`Sql dump created\n`)
             logWStream.write(`Backup complete [${new Date().toISOString()}]\n`)
+
+            addBackupFile(filepath)
         })
         mysqldump.stderr.on('data', err => logWStream.write(err))
         mysqldump.on('close', () => {
@@ -40,7 +49,6 @@ function initBackupTask(hour) {
         scheduled: false,
         timezone: 'UTC',
     })
-    fs.stat()
 }
 
 function initCronJobs() {

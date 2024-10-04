@@ -21,6 +21,29 @@ async function addBackupFile(filename) {
     await db.File.create(values)
 }
 
+function removeOldBackups() {
+    const retainDays = 30
+    const cutoffTime = Date.now() - retainDays*24*60*60*1000
+
+    const filenames = fs.readdirSync(process.env.DB_BACKUP_DIR)
+    filenames.forEach(file => {
+        const filepath = path.join(process.env.DB_BACKUP_DIR, file)
+        fs.stat(filepath, (err, stats) => {
+            if(err) {
+                throw err
+            }
+            const creationTime = stats.birthtime.getTime()
+            if(creationTime < cutoffTime) {
+                fs.unlink(filepath, err => {
+                    if(err) {
+                        throw err
+                    }
+                })
+            }
+        })
+    })
+}
+
 function initBackupTask(hour) {
     return cron.schedule(`*/${hour} * * * *`, () => {
         const logWStream = fs.createWriteStream(process.env.DB_BACKUP_LOG, {
@@ -42,12 +65,17 @@ function initBackupTask(hour) {
         mysqldump.stdout.once('data', () => dataWritten = true)
         mysqldump.stdout.pipe(dbWStream).on('finish', () => {
             if(!dataWritten) {
-                return fs.unlink(filepath, _ => {})
+                return fs.unlink(filepath, err => {
+                    if(err) {
+                        throw err
+                    }
+                })
             }
             logWStream.write(`Sql dump created\n`)
             logWStream.write(`Backup complete [${new Date().toISOString()}]\n`)
             console.log('complete')
             addBackupFile(filename)
+            removeOldBackups()
         })
         mysqldump.stderr.on('data', err => logWStream.write(err))
         mysqldump.on('close', () => {

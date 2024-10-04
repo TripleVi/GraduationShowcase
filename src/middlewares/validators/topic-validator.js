@@ -5,7 +5,7 @@ import { validateId } from './validator'
 const checkGet = async (req, res, next) => {
     await checkSchema({
         m: { optional: true, trim: true, notEmpty: true },
-        limit: { optional: true, isInt: { options: { min: 0, max: 25 } }, toInt: true },
+        limit: { optional: true, isInt: { options: { min: 1, max: 25 } }, toInt: true },
         offset: { optional: true, isInt: { options: { min: 0 } }, toInt: true },
     }, ['query']).run(req)
     

@@ -6,7 +6,7 @@ const checkGet = async (req, res, next) => {
     await checkSchema({
         m: { optional: true, trim: true, notEmpty: true },
         t: { optional: true, trim: true, notEmpty: true },
-        limit: { optional: true, isInt: { options: { min: 0, max: 25 } }, toInt: true },
+        limit: { optional: true, isInt: { options: { min: 1, max: 25 } }, toInt: true },
         offset: { optional: true, isInt: { options: { min: 0 } }, toInt: true },
         sort: { optional: true, trim: true, notEmpty: { bail: true }, toLowerCase: true, custom: { options: value => {
             const fields = ['year', 'views', 'likes']

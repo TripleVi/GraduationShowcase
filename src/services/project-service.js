@@ -37,9 +37,6 @@ async function getProjects(params) {
     // search: title, year, author, hashtag
     const upperLimit = 25
     const { m, t, limit=upperLimit, offset=0, search, sort } = params
-    if(limit === 0) {
-        return { data: [] }
-    }
     let options = {
         attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
         include: [

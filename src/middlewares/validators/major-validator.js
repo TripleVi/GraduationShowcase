@@ -2,7 +2,7 @@ import { checkSchema, matchedData, validationResult } from 'express-validator'
 
 const checkGet = async (req, res, next) => {
     await checkSchema({
-        limit: { optional: true, isInt: { options: { min: 0, max: 25 } }, toInt: true },
+        limit: { optional: true, isInt: { options: { min: 1, max: 25 } }, toInt: true },
         offset: { optional: true, isInt: { options: { min: 0 } }, toInt: true },
     }, ['query']).run(req)
     const result = validationResult(req)

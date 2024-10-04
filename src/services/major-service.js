@@ -3,18 +3,19 @@ import db from '../models'
 async function getMajors(params) {
     const upperLimit = 25
     const { limit = upperLimit, offset = 0 } = params
-    const totalItems = await db.Major.count()
-    const metadata = { totalItems }
-    if(!limit || !totalItems) {
-        return { data: [], metadata }
-    }
-    const majors = await db.Major.findAll({
+    const options = {
         attributes: ['id', 'name'],
         order: [['createdAt', 'DESC']],
         offset,
         limit: Math.min(limit, upperLimit),
-    })
-    return { data: majors, metadata }
+    }
+    const { count, rows } = await db.Major.findAndCountAll(options)
+    return {
+        data: rows,
+        metadata: {
+            totalItems: count,
+        },
+    }
 }
 
 async function addMajor(major) {

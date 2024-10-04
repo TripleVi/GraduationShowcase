@@ -3,12 +3,9 @@ import db from '../models'
 async function getTopics(params) {
     const upperLimit = 25
     const { m, limit = upperLimit, offset = 0 } = params
-    if(limit === 0) {
-        return { data: [] }
-    }
     const options = {
         attributes: ['id', 'name'],
-        order: [['name', 'ASC']],
+        order: [['createdAt', 'DESC']],
         offset,
         limit: Math.min(limit, upperLimit),
     }

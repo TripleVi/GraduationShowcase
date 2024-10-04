@@ -2,18 +2,27 @@ import cron from 'node-cron'
 import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
+import mime from 'mime-types'
 
 import db from '../models'
 
 let task
 
-function addBackupFile(filepath) {
+async function addBackupFile(filename) {
+    const filepath = path.join(process.env.DB_BACKUP_DIR, filename)
     const stats = fs.statSync(filepath)
-    console.log(stats)
+    const mimeType = mime.lookup(filepath)
+    const values = {
+        name: filename,
+        originalName: filename,
+        size: stats.size,
+        mimeType,
+    }
+    await db.File.create(values)
 }
 
 function initBackupTask(hour) {
-    return cron.schedule(`0 ${hour} * * *`, () => {
+    return cron.schedule(`*/${hour} * * * *`, () => {
         const logWStream = fs.createWriteStream(process.env.DB_BACKUP_LOG, {
             flags: 'a',
         })
@@ -37,8 +46,8 @@ function initBackupTask(hour) {
             }
             logWStream.write(`Sql dump created\n`)
             logWStream.write(`Backup complete [${new Date().toISOString()}]\n`)
-
-            addBackupFile(filepath)
+            console.log('complete')
+            addBackupFile(filename)
         })
         mysqldump.stderr.on('data', err => logWStream.write(err))
         mysqldump.on('close', () => {
@@ -55,7 +64,7 @@ function initCronJobs() {
     if(task) {
         throw new Error('Cron jobs was initialized')
     }
-    task = initBackupTask(3)
+    task = initBackupTask(2)
     task.start()
 }
 

@@ -31,7 +31,6 @@ const deleteBackup = async (req, res) => {
 const restoreBackup = async (req, res) => {
     try {
         const id = req.params.id
-        console.log(id)
         // await backupService.restoreBackup(id)
         res.sendStatus(204)
     } catch (error) {

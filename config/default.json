@@ -1,0 +1,11 @@
+{
+  "backup": {
+    "database": {
+      "hours": [
+        1,
+        15
+      ],
+      "retainDays": 30
+    }
+  }
+}

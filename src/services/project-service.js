@@ -3,35 +3,6 @@ import { literal, Op } from 'sequelize'
 import db from '../models'
 import * as storageService from './storage-service'
 
-// async function getProjects() {
-//     const projects = await db.Project.findAll({
-//         attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
-//         include: [
-//             {
-//                 model: db.Author,
-//                 attributes: { exclude: ['createdAt', 'updatedAt', 'projectId'] },
-//             },
-//             {
-//                 model: db.Hashtag,
-//                 through: { attributes: [] },
-//             },
-//             {
-//                 model: db.Photo,
-//                 attributes: { exclude: ['projectId'] },
-//             },
-//             {
-//                 model: db.Report,
-//                 attributes: { exclude: ['projectId'] },
-//             },
-//         ],
-//     })
-//     return projects.map(p => {
-//         const values = p.dataValues
-//         values.hashtags = values.hashtags.map(h => h.name)
-//         return values
-//     })
-// }
-
 async function getProjects(params) {
     // sort: year, views, and likes
     // search: title, year, author, hashtag
@@ -264,6 +235,7 @@ async function addProject(project, files) {
             originalName: f.originalname,
             size: f.size,
             mimeType: f.mimetype,
+            storageType: 'cloud',
         }))
         let index = 0
         if(report) {
@@ -367,6 +339,7 @@ async function updateReport(id, file) {
             originalName: file.originalname,
             size: file.size,
             mimeType: file.mimetype,
+            storageType: 'cloud',
         }
         const oldReport = await project.getReport()
         await project.createReport(newReport, { transaction })
@@ -375,7 +348,6 @@ async function updateReport(id, file) {
             await storageService.deleteFile(fileRef)
             await oldReport.destroy({ transaction })
         }
-
         await transaction.commit()
     } catch (error) {
         await transaction.rollback()
@@ -407,6 +379,7 @@ async function addAuthors(id, authors, files) {
         originalName: f.originalname,
         size: f.size,
         mimeType: f.mimetype,
+        storageType: 'cloud',
     }))
     const newAuthors = authors.map(a => {
         const {fileIndex, ...values} = a
@@ -419,7 +392,6 @@ async function addAuthors(id, authors, files) {
     const results = await db.Author.bulkCreate(newAuthors, {
         include: ['avatar'], 
     })
-    console.log(results[0].dataValues)
     return results.map(r => {
         const { avatarId, createdAt, updatedAt, ...rest } = r.dataValues
         return rest
@@ -439,6 +411,7 @@ async function addPhotos(id, files) {
         originalName: f.originalname,
         size: f.size,
         mimeType: f.mimetype,
+        storageType: 'cloud',
         photo: { projectId: id },
     }))
     const results = await db.File.bulkCreate(newFiles, {

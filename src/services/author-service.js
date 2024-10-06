@@ -31,6 +31,7 @@ async function updateAvatar(id, file) {
             originalName: file.originalname,
             size: file.size,
             mimeType: file.mimetype,
+            storageType: 'cloud',
         }
         const oldAvatar = await author.getAvatar()
         await author.createAvatar(newAvatar, { transaction })

@@ -359,7 +359,8 @@ async function updateReport(id, file) {
     }
     const transaction = await db.sequelize.transaction()
     try {
-        const response = await storageService.uploadFromLocal(file.path)
+        file.ref = `projects/${id}/${file.filename}`
+        const response = await storageService.uploadFromLocal(file)
         const newReport = {
             url: response[0].metadata.selfLink,
             name: file.filename,
@@ -369,11 +370,13 @@ async function updateReport(id, file) {
         }
         const oldReport = await project.getReport()
         await project.createReport(newReport, { transaction })
-        await storageService.deleteFile(oldReport.name)
-        await oldReport.destroy({ transaction })
+        if(oldReport) {
+            const fileRef = `projects/${id}/${oldReport.name}`
+            await storageService.deleteFile(fileRef)
+            await oldReport.destroy({ transaction })
+        }
 
         await transaction.commit()
-        return true
     } catch (error) {
         await transaction.rollback()
         throw error

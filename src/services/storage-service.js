@@ -1,8 +1,9 @@
 import { getStorage, getDownloadURL } from 'firebase-admin/storage'
 
-async function uploadFromLocal(path) {
+async function uploadFromLocal(file) {
     const bucket = getStorage().bucket()
-    return bucket.upload(path, {
+    return bucket.upload(file.path, {
+        destination: file.ref,
         preconditionOpts: { ifGenerationMatch: 0 },
     })
 }

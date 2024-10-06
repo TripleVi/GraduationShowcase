@@ -96,11 +96,14 @@ const editReport = async (req, res) => {
         await projectService.updateReport(id, file)
         res.sendStatus(204)
     } catch (error) {
-        console.log(error)
-        if(error.code == 'PROJECT_NOT_EXIST') {
-            return res.sendStatus(404)
+        switch (error.code) {
+            case 'PROJECT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
         }
-        res.sendStatus(500)
     }
 }
 

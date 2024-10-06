@@ -1,3 +1,6 @@
+import fs from 'fs'
+import path from 'path'
+
 import db from '../models'
 
 async function getDBBackups(params) {
@@ -24,7 +27,7 @@ async function getDBBackups(params) {
 
 async function removeBackup(id) {
     const backup = await db.File.findOne({
-        attributes: ['id'],
+        attributes: ['id', 'name'],
         where: {
             id,
             mimeType: 'application/x-sql',
@@ -34,6 +37,8 @@ async function removeBackup(id) {
     if(!backup) {
         throw { code: 'BACKUP_NOT_EXIST' }
     }
+    const filepath = path.join(process.env.DB_BACKUP_DIR, backup.name)
+    fs.unlinkSync(filepath)
     await backup.destroy()
 }
 

@@ -5,8 +5,12 @@ import path from 'path'
 import mime from 'mime-types'
 
 import db from '../models'
+import config from '../../config/default.json'
 
-let task
+const scheduleOptions = {
+    scheduled: false,
+    timezone: 'UTC',
+}
 
 async function addBackupFile(filename) {
     const filepath = path.join(process.env.DB_BACKUP_DIR, filename)
@@ -21,31 +25,39 @@ async function addBackupFile(filename) {
     await db.File.create(values)
 }
 
-function removeOldBackups() {
-    const retainDays = 30
-    const cutoffTime = Date.now() - retainDays*24*60*60*1000
-
-    const filenames = fs.readdirSync(process.env.DB_BACKUP_DIR)
-    filenames.forEach(file => {
-        const filepath = path.join(process.env.DB_BACKUP_DIR, file)
-        fs.stat(filepath, (err, stats) => {
-            if(err) {
-                throw err
-            }
-            const creationTime = stats.birthtime.getTime()
-            if(creationTime < cutoffTime) {
-                fs.unlink(filepath, err => {
-                    if(err) {
-                        throw err
-                    }
-                })
-            }
+function initCleanupTask() {
+    return cron.schedule('0 3 * * *', () =>  {
+        const retainDays = config.backup.database.retainDays
+        const cutoffTime = Date.now() - retainDays*24*60*60*1000
+        const filenames = fs.readdirSync(process.env.DB_BACKUP_DIR)
+        filenames.forEach(file => {
+            const filepath = path.join(process.env.DB_BACKUP_DIR, file)
+            fs.stat(filepath, (err, stats) => {
+                if(err) {
+                    throw err
+                }
+                const creationTime = stats.birthtime.getTime()
+                if(creationTime < cutoffTime) {
+                    fs.unlink(filepath, err => {
+                        if(err) {
+                            throw err
+                        }
+                    })
+                }
+            })
         })
-    })
+    }, scheduleOptions)
 }
 
-function initBackupTask(hour) {
-    return cron.schedule(`*/${hour} * * * *`, () => {
+function initBackupTask() {
+    const { hours, interval } = config.backup.database
+    let hour = 3
+    if(hours) {
+        hour = hours.length == 1 ? hours[0] : hours.join(',')
+    }else if(interval) {
+        hour = `*/${interval}`
+    }
+    return cron.schedule(`0 ${hour} * * *`, () => {
         const logWStream = fs.createWriteStream(process.env.DB_BACKUP_LOG, {
             flags: 'a',
         })
@@ -73,41 +85,34 @@ function initBackupTask(hour) {
             }
             logWStream.write(`Sql dump created\n`)
             logWStream.write(`Backup complete [${new Date().toISOString()}]\n`)
-            console.log('complete')
             addBackupFile(filename)
-            removeOldBackups()
         })
         mysqldump.stderr.on('data', err => logWStream.write(err))
         mysqldump.on('close', () => {
             logWStream.write('---------------------------------------------\n')
             logWStream.end()
         })
-    }, {
-        scheduled: false,
-        timezone: 'UTC',
-    })
+    }, scheduleOptions)
 }
 
-function initCronJobs() {
-    if(task) {
-        throw new Error('Cron jobs was initialized')
+function scheduleTasks() {
+    const backupTask = {
+        task: initBackupTask(),
+        restart: function() {
+            this.task.stop()
+            this.task = initBackupTask()
+            this.task.start()
+        }
     }
-    task = initBackupTask(2)
-    task.start()
-}
-
-
-function scheduleTask(options) {
-    const { hours, interval, retainDays } = options
-    let hour = 3
-    if(hours) {
-        hour = hours.length == 1 ? hours[0] : hours.join(',')
-    }else if(interval) {
-        hour = `*/${interval}`
+    const cleanupTask = {
+        task: initCleanupTask(),
+        restart: function() {
+            this.task.stop()
+            this.task = initCleanupTask()
+            this.task.start()
+        }
     }
-    task.stop()
-    task = initBackupTask(hour)
-    task.start()
+    return { backupTask, cleanupTask }
 }
 
-export { initCronJobs, scheduleTask }
+export default scheduleTasks

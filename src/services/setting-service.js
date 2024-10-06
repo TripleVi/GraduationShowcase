@@ -1,15 +1,18 @@
-import db from '../models'
-import { scheduleTask } from '../utils/cronjob'
+import fs from 'fs'
 
-async function updateDBBackup(setting) {
-    const backup = await db.AppSetting.findOne({
-        attributes: ['id', 'value'],
-        where: { type: 'backup' },
+import config from '../../config/default.json'
+import { tasks } from '../cronjobs'
+
+async function updateDBBackup(settings) {
+    config.backup.database = settings
+    const jsonString = JSON.stringify(config, null, 2)
+    const filepath = `${process.cwd()}/config/default.json`
+    fs.writeFile(filepath, jsonString, err => {
+        if(err) {
+            throw err
+        }
+        tasks.backupTask.restart()
     })
-    const value = backup.value
-    value.database = setting
-    await backup.update({ value })
-    // scheduleTask(options)
 }
 
 export { updateDBBackup }

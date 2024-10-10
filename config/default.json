@@ -2,8 +2,7 @@
   "backup": {
     "database": {
       "hours": [
-        1,
-        15
+        3
       ],
       "retainDays": 30
     }

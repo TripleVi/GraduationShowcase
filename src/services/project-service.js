@@ -415,7 +415,7 @@ async function addPhotos(id, files) {
         photo: { projectId: id },
     }))
     const results = await db.File.bulkCreate(newFiles, {
-        include: ['photo'], 
+        include: ['photo'],
     })
     return results.map(r => {
         const { photo, createdAt, ...rest } = r.dataValues

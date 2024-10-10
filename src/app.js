@@ -16,14 +16,6 @@ app.use(cors({
   credentials: true,
 }))
 
-// app.use((_, res, next) => {
-//   console.log(process.env.MAINTENANCE_MODE)
-//   if(process.env.MAINTENANCE_MODE === 'false') {
-//     return next()
-//   }
-//   res.status(503).send('Server is under maintenance. Please come back later.')
-// })
-
 initializeApp({
   credential: cert(serviceAccount),
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,

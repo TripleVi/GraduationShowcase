@@ -26,7 +26,7 @@ async function addBackupFile(filename) {
 }
 
 function initCleanupTask() {
-    return cron.schedule('0 3 * * *', () =>  {
+    const task = cron.schedule('0 3 * * *', () =>  {
         const retainDays = config.backup.database.retainDays
         const cutoffTime = Date.now() - retainDays*24*60*60*1000
         const filenames = fs.readdirSync(process.env.DB_BACKUP_DIR)
@@ -47,6 +47,8 @@ function initCleanupTask() {
             })
         })
     }, scheduleOptions)
+    task.start()
+    return task
 }
 
 function initBackupTask() {
@@ -57,7 +59,7 @@ function initBackupTask() {
     }else if(interval) {
         hour = `*/${interval}`
     }
-    return cron.schedule(`0 ${hour} * * *`, () => {
+    const task = cron.schedule(`0 ${hour} * * *`, () => {
         const logWStream = fs.createWriteStream(process.env.DB_BACKUP_LOG, {
             flags: 'a',
         })
@@ -93,6 +95,8 @@ function initBackupTask() {
             logWStream.end()
         })
     }, scheduleOptions)
+    task.start()
+    return task
 }
 
 function scheduleTasks() {

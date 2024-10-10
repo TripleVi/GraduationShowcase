@@ -1,6 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 
+import { spawn, exec } from 'child_process'
+import mime from 'mime-types'
+
 import db from '../models'
 
 async function getDBBackups(params) {
@@ -42,9 +45,59 @@ async function removeBackup(id) {
     await backup.destroy()
 }
 
+async function addBackupFile(filename) {
+    const filepath = path.join(process.env.DB_BACKUP_DIR, filename)
+    const stats = fs.statSync(filepath)
+    const mimeType = mime.lookup(filepath)
+    const values = {
+        name: filename,
+        originalName: filename,
+        size: stats.size,
+        mimeType,
+    }
+    await db.File.create(values)
+}
+
+function backupDB() {
+    const logWStream = fs.createWriteStream(process.env.DB_BACKUP_LOG, {
+        flags: 'a',
+    })
+    const filename = `${process.env.DB_DATABASE}-${Date.now()}.sql`
+    const filepath = path.join(process.env.DB_BACKUP_DIR, filename)
+    const dbWStream = fs.createWriteStream(filepath)
+    const mysqldump = spawn('mysqldump', [
+        '-u',
+        process.env.DB_USERNAME,
+        '-h',
+        process.env.DB_HOST,
+        `-p${process.env.DB_PASSWORD}`,
+        process.env.DB_DATABASE,
+    ])
+    let dataWritten = false
+    logWStream.write(`Starting backup [${new Date().toISOString()}]\n`)
+    mysqldump.stdout.once('data', () => dataWritten = true)
+    mysqldump.stdout.pipe(dbWStream).on('finish', () => {
+        if(!dataWritten) {
+            return fs.unlink(filepath, err => {
+                if(err) {
+                    throw err
+                }
+            })
+        }
+        logWStream.write(`Sql dump created\n`)
+        logWStream.write(`Backup complete [${new Date().toISOString()}]\n`)
+        addBackupFile(filename)
+    })
+    mysqldump.stderr.pipe(logWStream)
+    mysqldump.on('close', () => {
+        logWStream.write('---------------------------------------------\n')
+        logWStream.end()
+    })
+}
+
 async function restoreBackup(id) {
     const backup = await db.File.findOne({
-        attributes: ['id'],
+        attributes: ['name'],
         where: {
             id,
             mimeType: 'application/x-sql',
@@ -54,6 +107,34 @@ async function restoreBackup(id) {
     if(!backup) {
         throw { code: 'BACKUP_NOT_EXIST' }
     }
+    const filepath = path.join(process.env.DB_BACKUP_DIR, backup.name)
+    const dbRestore = `mysql -u ${process.env.DB_USERNAME} -h ${process.env.DB_HOST} -p${process.env.DB_PASSWORD} ${process.env.DB_DATABASE} < ${filepath}`
+    exec(dbRestore, error => {
+        if(error) {
+            throw error
+        }
+    })
 }
 
-export { getDBBackups, removeBackup, restoreBackup }
+function removeOldBackups(retainDays) {
+    const cutoffTime = Date.now() - retainDays*24*60*60*1000
+    const filenames = fs.readdirSync(process.env.DB_BACKUP_DIR)
+    filenames.forEach(file => {
+        const filepath = path.join(process.env.DB_BACKUP_DIR, file)
+        fs.stat(filepath, (err, stats) => {
+            if(err) {
+                throw err
+            }
+            const creationTime = stats.birthtime.getTime()
+            if(creationTime < cutoffTime) {
+                fs.unlink(filepath, err => {
+                    if(err) {
+                        throw err
+                    }
+                })
+            }
+        })
+    })
+}
+
+export { getDBBackups, removeBackup, backupDB, restoreBackup, removeOldBackups }

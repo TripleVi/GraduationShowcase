@@ -3,9 +3,14 @@ export const INVALID_TOKEN = Object.freeze({
     message: 'Token is not valid!'
 })
 
+export const TOKEN_EXPIRED = Object.freeze({
+    code: 'TOKEN_EXPIRED',
+    message: 'Token expired!'
+})
+
 export const INVALID_CREDENTIAL = Object.freeze({
     code: 'INVALID_CREDENTIAL',
-    message: 'Username or password is not correct!'
+    message: 'User credential is not valid!'
 })
 
 export const EMAIL_EXISTS = Object.freeze({

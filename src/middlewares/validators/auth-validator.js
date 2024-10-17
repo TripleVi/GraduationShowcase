@@ -25,4 +25,19 @@ const checkSignIn = async (req, res, next) => {
     result.isEmpty() ? next() : res.status(400).send(error.INVALID_CREDENTIAL)
 }
 
-export { checkSignIn }
+const checkSignUp = async (req, res, next) => {
+    await checkSchema({
+        email: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
+            // Username must contain valid characters and at least one letter.
+            const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_.]+$/ig
+            if(!pattern.test(value)) {
+                throw new Error('Invalid username')
+            }
+            return true
+        }, bail: true }, isLength: { options: { min: 3, max: 24 } }, escape: true },
+    }, ['body']).run(req)
+    const result = validationResult(req)
+    result.isEmpty() ? next() : res.status(400).send(error.INVALID_CREDENTIAL)
+}
+
+export { checkSignIn, checkSignUp }

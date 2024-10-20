@@ -2,44 +2,15 @@ import { getStorage, getDownloadURL } from 'firebase-admin/storage'
 
 async function uploadFromLocal(file) {
     const bucket = getStorage().bucket()
-    return bucket.upload(file.path, {
+    const [uploaded] = await bucket.upload(file.path, {
         destination: file.ref,
         preconditionOpts: { ifGenerationMatch: 0 },
     })
+    return getDownloadURL(uploaded)
 }
 
-async function testUpload(file) {
-    const bucket = getStorage().bucket()
-    // bucket.deleteFiles({force})
-    const result = await bucket.deleteFiles({ prefix: 'project' })
-    console.log('----------------------')
-    console.log(result)
-    console.log('----------------------')
-    return
-    const response = await bucket.upload(file.path, {
-        destination: `project2/author/${file.filename}`,
-        preconditionOpts: { ifGenerationMatch: 0 },
-    })
-    console.log(response)
-}
-
-async function getDownloadLink() {
-    const fileRef = getStorage().bucket().file('1725968318710-531017264.png');
-    const downloadURL = await getDownloadURL(fileRef);
-    console.log(downloadURL)
-}
-
-async function uploadFilesFromLocal(files) {
-    const bucket = getStorage().bucket()
-    const uploadPromises = []
-    for (const f of files) {
-        uploadPromises.push(
-            bucket.upload(f.path, {
-                destination: f.ref,
-                preconditionOpts: { ifGenerationMatch: 0 },
-            })
-        )
-    }
+function uploadFilesFromLocal(files) {
+    const uploadPromises = files.map(f => uploadFromLocal(f))
     return Promise.all(uploadPromises)
 }
 
@@ -58,4 +29,4 @@ async function deleteFolder(folderRef) {
     return bucket.deleteFiles({ prefix: folderRef, force: true })
 }
 
-export { uploadFromLocal, uploadFilesFromLocal, deleteFile, deleteFiles, deleteFolder, testUpload, getDownloadLink }
+export { uploadFromLocal, uploadFilesFromLocal, deleteFile, deleteFiles, deleteFolder }

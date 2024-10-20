@@ -24,9 +24,9 @@ async function updateAvatar(id, file) {
     }
     const transaction = await db.sequelize.transaction()
     try {
-        const response = await storageService.uploadFromLocal(file.path)
+        const fileUrl = await storageService.uploadFromLocal(file.path)
         const newAvatar = {
-            url: response[0].metadata.selfLink,
+            url: fileUrl,
             name: file.filename,
             originalName: file.originalname,
             size: file.size,

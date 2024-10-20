@@ -228,9 +228,9 @@ async function addProject(project, files) {
             })
         )
         allFiles.forEach(f => f.ref = `projects/${project.id}/${f.filename}`)
-        const responses = await storageService.uploadFilesFromLocal(allFiles)
+        const fileUrls = await storageService.uploadFilesFromLocal(allFiles)
         const newFiles = allFiles.map((f, i) => ({
-            url: responses[i][0].metadata.selfLink,
+            url: fileUrls[i],
             name: f.filename,
             originalName: f.originalname,
             size: f.size,
@@ -332,9 +332,9 @@ async function updateReport(id, file) {
     const transaction = await db.sequelize.transaction()
     try {
         file.ref = `projects/${id}/${file.filename}`
-        const response = await storageService.uploadFromLocal(file)
+        const fileUrl = await storageService.uploadFromLocal(file)
         const newReport = {
-            url: response[0].metadata.selfLink,
+            url: fileUrl,
             name: file.filename,
             originalName: file.originalname,
             size: file.size,
@@ -372,9 +372,9 @@ async function addAuthors(id, authors, files) {
         throw { code: 'EMAIL_EXISTS' }
     }
     const filepaths = files.map(f => f.path)
-    const responses = await storageService.uploadFilesFromLocal(filepaths)
+    const fileUrls = await storageService.uploadFilesFromLocal(filepaths)
     const newFiles = files.map((f, i) => ({
-        url: responses[i][0].metadata.selfLink,
+        url: fileUrls[i],
         name: f.filename,
         originalName: f.originalname,
         size: f.size,
@@ -404,9 +404,9 @@ async function addPhotos(id, files) {
         throw { code: 'PROJECT_NOT_EXIST' }
     }
     const filepaths = files.map(f => f.path)
-    const responses = await storageService.uploadFilesFromLocal(filepaths)
+    const fileUrls = await storageService.uploadFilesFromLocal(filepaths)
     const newFiles = files.map((f, i) => ({
-        url: responses[i][0].metadata.selfLink,
+        url: fileUrls[i],
         name: f.filename,
         originalName: f.originalname,
         size: f.size,

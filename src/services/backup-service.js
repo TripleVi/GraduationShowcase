@@ -113,11 +113,12 @@ async function restoreBackup(id) {
 
     const filepath = path.join(process.env.DB_BACKUP_DIR, backup.name)
     const dbRestore = `mysql -u ${process.env.DB_USERNAME} -h ${process.env.DB_HOST} -p${process.env.DB_PASSWORD} ${process.env.DB_DATABASE} < ${filepath}`
-    exec(dbRestore, async error => {
-        if(error) {
-            throw error
+    exec(dbRestore, async err => {
+        if(err) {
+            throw err
         }
         await maintenanceService.disableMaintenanceMode()
+        console.log('Database backup completed successfully')
     })
     
 }

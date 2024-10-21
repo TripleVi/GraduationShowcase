@@ -7,7 +7,7 @@ import { initializeApp, cert } from 'firebase-admin/app'
 import initRoutes from './routes'
 import serviceAccount from '../service-account-key.json'
 import { initCronJobs } from './cronjobs'
-import redis from './config/redis'
+import { maintenance } from './services/maintenance'
 
 const app = express()
 
@@ -17,20 +17,12 @@ app.use(cors({
   credentials: true,
 }))
 
-app.use(async (_, res, next) => {
-  const db = await redis.instance
-  const value = await db.get('maintenance_mode')
-  if(value === "true") {
-    return res.sendStatus(503)
-  }
-  next()
-})
+maintenance(app)
 
 initializeApp({
   credential: cert(serviceAccount),
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
 })
-
 
 app.use(bodyParser.json())
 

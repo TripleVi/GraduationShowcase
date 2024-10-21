@@ -5,6 +5,7 @@ import { spawn, exec } from 'child_process'
 import mime from 'mime-types'
 
 import db from '../models'
+import * as maintenanceService from './maintenance'
 
 async function getDBBackups(params) {
     const upperLimit = 25
@@ -107,13 +108,18 @@ async function restoreBackup(id) {
     if(!backup) {
         throw { code: 'BACKUP_NOT_EXIST' }
     }
+
+    await maintenanceService.enableMaintenanceMode()
+
     const filepath = path.join(process.env.DB_BACKUP_DIR, backup.name)
     const dbRestore = `mysql -u ${process.env.DB_USERNAME} -h ${process.env.DB_HOST} -p${process.env.DB_PASSWORD} ${process.env.DB_DATABASE} < ${filepath}`
-    exec(dbRestore, error => {
+    exec(dbRestore, async error => {
         if(error) {
             throw error
         }
+        await maintenanceService.disableMaintenanceMode()
     })
+    
 }
 
 function removeOldBackups(retainDays) {

@@ -110,6 +110,8 @@ async function restoreBackup(id) {
     }
 
     await maintenanceService.enableMaintenanceMode()
+    // pause all cron jobs
+    // return time (endpoint)
 
     const filepath = path.join(process.env.DB_BACKUP_DIR, backup.name)
     const dbRestore = `mysql -u ${process.env.DB_USERNAME} -h ${process.env.DB_HOST} -p${process.env.DB_PASSWORD} ${process.env.DB_DATABASE} < ${filepath}`
@@ -120,7 +122,6 @@ async function restoreBackup(id) {
         await maintenanceService.disableMaintenanceMode()
         console.log('Database backup completed successfully')
     })
-    
 }
 
 function removeOldBackups(retainDays) {

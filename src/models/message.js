@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       singular: 'message',
       plural: 'messages'
     },
+    updatedAt: false,
   });
   return Message;
 };

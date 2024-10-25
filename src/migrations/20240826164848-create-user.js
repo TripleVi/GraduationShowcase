@@ -12,11 +12,19 @@ module.exports = {
       email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
+        unique: true
       },
       username: {
         type: Sequelize.STRING,
-        unique: true,
+        unique: true
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      avatarUrl: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       password: {
         type: Sequelize.STRING
@@ -24,16 +32,16 @@ module.exports = {
       deleted: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false,
+        defaultValue: false
       },
       role_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: {
-            tableName: 'role',
+            tableName: 'role'
           },
-          key: 'id',
+          key: 'id'
         },
         onDelete: 'RESTRICT',
         onUpdate: 'CASCADE'
@@ -44,7 +52,7 @@ module.exports = {
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       }
     });
   },

@@ -34,7 +34,8 @@ async function signInWithUsernameAndPassword(username, password) {
 }
 
 async function handleGoogleAuth(googleUser) {
-    const { email } = googleUser
+    const { email, name, picture } = googleUser
+    console.log(name, picture)
     const [user] = await db.User.findOrCreate({
         where: { email },
         defaults: {

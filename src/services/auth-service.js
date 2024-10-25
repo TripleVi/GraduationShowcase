@@ -5,16 +5,14 @@ import db from '../models'
 import RoleEnum from '../enums/role-enum'
 
 function generateToken(user) {
+    const { id: uid, name, roleId } = user
     return jwt.sign(
-        {
-            uid: user.id,
-            roleId: user.roleId,
-        },
+        { uid, name, roleId },
         process.env.JWT_SECRET,
         {
             issuer: process.env.DOMAIN,
             expiresIn: '2 days',
-            subject: user.id + '',
+            subject: uid + '',
         }
     )
 }
@@ -35,11 +33,12 @@ async function signInWithUsernameAndPassword(username, password) {
 
 async function handleGoogleAuth(googleUser) {
     const { email, name, picture } = googleUser
-    console.log(name, picture)
     const [user] = await db.User.findOrCreate({
         where: { email },
         defaults: {
             email,
+            name,
+            avatarUrl: picture,
             roleId: RoleEnum.USER,
         },
     })

@@ -15,9 +15,11 @@ module.exports = {
 
     // Admin
     await queryInterface.bulkInsert('user', [{
-      email: 'vuong2001@fpt.edu.vn',
-      username: 'vuongvu2001',
-      password: '$2a$10$1hfGt6p/mbpndutJHH7PeOtZpAalHSQjQ8DGGU9SWlTN/O1F0layu',
+      email: 'baongoc@fpt.edu.vn',
+      username: 'baongoc12345',
+      name: 'Hoang Bao Ngoc',
+      avatar_url: 'https://lh3.googleusercontent.com/a/ACg8ocLlj6zkmkFesMZO8I-oPDjPJfBo0E9LPGbCfxeqd6Qv0YEzukOl=s96-c',
+      password: '$2a$10$MXf1bT2/PCforGDEwwuwE.6olFlWPc/sFIl4n4a9t4a1przq9geFC',
       role_id: 1,
       created_at: new Date(),
       updated_at: new Date(),

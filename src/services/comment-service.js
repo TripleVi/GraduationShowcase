@@ -1,11 +1,15 @@
 import db from '../models'
 
 async function getOrphanComments(id) {
-    const project = await db.Project.findByPk(id)
+    const project = await db.Project.findByPk(id, {
+        attributes: ['id'],
+    })
     if(!project) {
         throw { code: 'PROJECT_NOT_EXIST' }
     }
-    const comments = await project.getComments()
+    const comments = await project.getComments({
+        where: { parentId: null },
+    })
     return comments
 }
 
@@ -33,15 +37,15 @@ async function addComment(comment) {
 }
 
 async function updateComment(comment) {
-    const currentComment = await db.Comment.findByPk(comment.id)
+    const { id, authorId, content } = comment
+    const currentComment = await db.Comment.findByPk(id)
     if(!currentComment) {
         throw { code: 'COMMENT_NOT_EXIST' }
     }
-    if(comment.authorId !== currentComment.authorId) {
+    if(authorId !== currentComment.authorId) {
         throw { code: 'ACTION_FORBIDDEN' }
     }
-    const values = { content: comment.content }
-    await currentComment.update(values)
+    await currentComment.update({ content })
 }
 
 async function removeComment(id, authorId) {

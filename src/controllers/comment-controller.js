@@ -2,10 +2,11 @@ import * as commentService from '../services/comment-service'
 import * as errors from '../utils/errors'
 
 const fetchOrphanComments = async (req, res) => {
-    const id = req.params.id.trim()
+    let id = req.params.id.trim()
     if(!id) {
         return res.sendStatus(404)
     }
+    id = Number(id)
     try {
         const results = await commentService.getOrphanComments(id)
         res.status(200).send(results)
@@ -25,9 +26,11 @@ const fetchOrphanComments = async (req, res) => {
 }
 
 const createComment = async (req, res) => {
-    const comment = req.body
-    comment.authorId = req.User.uid
-    comment.projectId = Number(req.params.id)
+    const comment = {
+        ...req.body,
+        authorId: req.User.uid,
+        projectId: Number(req.params.id),
+    }
     try {
         const result = await commentService.addComment(comment)
         res.status(201).send(result)
@@ -49,8 +52,8 @@ const createComment = async (req, res) => {
 const editComment = async (req, res) => {
     const comment = {
         id: req.params.id,
-        authorId: req.User.uid,
         ...req.body,
+        authorId: req.User.uid,
     }
     try {
         await commentService.updateComment(comment)

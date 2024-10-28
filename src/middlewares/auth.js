@@ -16,15 +16,15 @@ const verifyJWT = async (req, res, next) => {
             issuer: process.env.DOMAIN,
             algorithms: 'HS256',
         })
-        const { uid: id, roleId } = decoded
+        const { uid, roleId } = decoded
         const user = await db.User.findOne({
             attributes: ['id'],
-            where: { id, roleId },
+            where: { id: uid, roleId },
         })
         if(!user) {
             return res.status(401).send(errors.INVALID_CREDENTIAL)
         }
-        req.User = { id, roleId }
+        req.User = { uid, roleId }
         next()
     } catch (error) {
         switch (error.name) {

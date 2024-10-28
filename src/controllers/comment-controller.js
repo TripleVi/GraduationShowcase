@@ -25,14 +25,11 @@ const fetchOrphanComments = async (req, res) => {
 }
 
 const createComment = async (req, res) => {
-    const id = req.params.id
     const comment = req.body
     comment.authorId = req.User.uid
-    if(!id) {
-        return res.sendStatus(404)
-    }
+    comment.projectId = Number(req.params.id)
     try {
-        const result = await commentService.addComment(id, comment)
+        const result = await commentService.addComment(comment)
         res.status(201).send(result)
     } catch (error) {
         switch (error.code) {

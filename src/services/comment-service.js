@@ -9,26 +9,27 @@ async function getOrphanComments(id) {
     return comments
 }
 
-async function addComment(id, comment) {
-    const projectCount = await db.Project.count({ where: { id } })
-    if(!projectCount) {
+async function addComment(comment) {
+    const { projectId, parentId } = comment
+    const project = await db.Project.findByPk(projectId, {
+        attributes: ['id'],
+    })
+    if(!project) {
         throw { code: 'PROJECT_NOT_EXIST' }
     }
-    if(comment.parentId) {
+    if(parentId) {
         const parent = await db.Comment.findOne({
             attributes: ['location'],
-            where: { id: comment.parentId, projectId: id }
+            where: { id: parentId, projectId },
         })
-        console.log(parent)
         if(!parent) {
             throw { code: 'COMMENT_NOT_EXIST' }
         }
-        comment.location = parent.location 
-                ? `${parent.location}/${comment.parentId}`
-                : `${comment.parentId}`
+        comment.location = parent.location
+                ? `${parent.location}/${parentId}`
+                : `${parentId}`
     }
-    comment.projectId = id
-    return db.Comment.create(comment)
+    return project.createComment(comment)
 }
 
 async function updateComment(comment) {

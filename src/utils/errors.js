@@ -53,14 +53,15 @@ export const PROJECT_NOT_EXIST = Object.freeze({
     message: 'Project does not exist!'
 })
 
-export const COMMENT_NOT_EXIST = Object.freeze({
-    code: 'COMMENT_NOT_EXIST',
-    message: 'Comment does not exist!'
-})
-
 export const USER_NOT_EXIST = Object.freeze({
     code: 'USER_NOT_EXIST',
     message: 'User does not exist!'
+})
+
+// ---------------Comment Errors---------------
+export const COMMENT_NOT_EXIST = Object.freeze({
+    code: 'COMMENT_NOT_EXIST',
+    message: 'Comment does not exist!'
 })
 
 export const COMMENT_PUT_FORBIDDEN = Object.freeze({
@@ -71,4 +72,10 @@ export const COMMENT_PUT_FORBIDDEN = Object.freeze({
 export const COMMENT_DEL_FORBIDDEN = Object.freeze({
     code: 'ACTION_FORBIDDEN',
     message: 'Only the creator can delete this comment!'
+})
+
+// ---------------Chat Errors---------------
+export const CHAT_DEL_FORBIDDEN = Object.freeze({
+    code: 'ACTION_FORBIDDEN',
+    message: 'Only the creator can delete this chat!'
 })

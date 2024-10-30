@@ -20,7 +20,11 @@ module.exports = {
         onUpdate: 'CASCADE'
       },
       title: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      created_at: {
+        type: Sequelize.DATE,
         allowNull: false
       }
     });

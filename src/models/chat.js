@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       singular: 'chat',
       plural: 'chats'
     },
-    timestamps: false,
+    updatedAt: false,
   });
   return Chat;
 };

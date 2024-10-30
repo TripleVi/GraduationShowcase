@@ -32,6 +32,15 @@ const fetchMessages = async (req, res) => {
     }
 }
 
+const createChat = async (req, res) => {
+    console.log('hello world')
+    res.sendStatus(204)
+}
+
+const createMessage = async (req, res) => {
+    
+}
+
 const deleteChat = async (req, res) => {
     const chatId = Number(req.params.id)
     const { uid } = req.User
@@ -50,4 +59,4 @@ const deleteChat = async (req, res) => {
     }
 }
 
-export { fetchChats, fetchMessages, deleteChat }
+export { fetchChats, fetchMessages, createChat, createMessage, deleteChat }

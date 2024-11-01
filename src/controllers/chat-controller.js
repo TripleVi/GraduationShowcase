@@ -33,7 +33,7 @@ const fetchMessages = async (req, res) => {
 }
 
 const createChat = async (req, res) => {
-    console.log('hello world')
+    await chatService.addChat(req.body)
     res.sendStatus(204)
 }
 

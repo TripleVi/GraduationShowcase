@@ -1,4 +1,10 @@
+import axios from 'axios'
+
 import db from '../models'
+
+const axiosInstance = axios.create({
+    baseURL: 'http://127.0.0.1:5000',
+})
 
 async function getChats(userId, params) {
     const upperLimit = 25
@@ -45,12 +51,13 @@ async function getMessages(chatId, userId, params) {
     }
 }
 
-async function addChat() {
-
+async function addChat(body) {
+    const response = await axiosInstance.post('/chats', body)
+    console.log(response.data)
 }
 
 async function addMessage() {
-
+    
 }
 
 async function removeChat(id, userId) {

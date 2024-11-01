@@ -29,6 +29,20 @@ async function getDBBackups(params) {
     }
 }
 
+async function getBackupDetail(id) {
+    const backup = await db.File.findOne({
+        attributes: ['id', 'name', 'size', 'mimeType'],
+        where: {
+            id,
+            storage_type: 'local',
+        }
+    })
+    if(!backup) {
+        throw { code: 'BACKUP_NOT_EXIST' }
+    }
+    return backup.get()
+}
+
 async function removeBackup(id) {
     const backup = await db.File.findOne({
         attributes: ['id', 'name'],
@@ -145,4 +159,4 @@ function removeOldBackups(retainDays) {
     })
 }
 
-export { getDBBackups, removeBackup, backupDB, restoreBackup, removeOldBackups }
+export { getDBBackups, getBackupDetail, removeBackup, backupDB, restoreBackup, removeOldBackups }

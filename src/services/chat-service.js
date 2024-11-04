@@ -3,7 +3,7 @@ import axios from 'axios'
 import db from '../models'
 
 const axiosInstance = axios.create({
-    baseURL: 'http://127.0.0.1:5000',
+    baseURL: process.env.CHATBOT_DOMAIN,
 })
 
 async function getChats(userId, params) {
@@ -51,13 +51,37 @@ async function getMessages(chatId, userId, params) {
     }
 }
 
-async function addChat(body) {
-    const response = await axiosInstance.post('/chats', body)
-    console.log(response.data)
+async function addChat(data) {
+    const response = await axiosInstance.post('/chats', data)
+    const { message_id: messageId } = response.data
+    const message = await db.Message.findByPk(messageId)
+    const chat = await message.getChat({
+        attributes: ['id', 'title'],
+    })
+    return {
+        chat,
+        message: {
+            content: message.content,
+            createdAt: message.createdAt,
+        }
+    }
 }
 
-async function addMessage() {
-    
+async function addMessage(params) {
+    const { userId, chatId, data } = params
+    const chat = await db.Chat.findOne({
+        where: { id: chatId, userId },
+    })
+    if(!chat) {
+        throw { code: 'CHAT_NOT_EXIST' }
+    }
+    const url = `/chats/${chatId}/messages`
+    const response = await axiosInstance.post(url, data)
+    const { message_id: messageId } = response.data
+    const message = await db.Message.findByPk(messageId, {
+        attributes: ['content', 'createdAt'],
+    })
+    return message
 }
 
 async function removeChat(id, userId) {

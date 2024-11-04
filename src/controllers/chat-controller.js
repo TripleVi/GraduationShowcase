@@ -33,12 +33,38 @@ const fetchMessages = async (req, res) => {
 }
 
 const createChat = async (req, res) => {
-    await chatService.addChat(req.body)
-    res.sendStatus(204)
+    const data = {
+        userId: req.User.uid,
+        ...req.body,
+    }
+    try {
+        const result = await chatService.addChat(data)
+        res.status(201).send(result)
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500)
+    }
 }
 
 const createMessage = async (req, res) => {
-    
+    const params = {
+        userId: req.User.uid,
+        chatId: Number(req.params.id),
+        data: req.body,
+    }
+    try {
+        const result = await chatService.addMessage(params)
+        res.status(201).send(result)
+    } catch (error) {
+        switch (error.code) {
+            case 'CHAT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
 }
 
 const deleteChat = async (req, res) => {

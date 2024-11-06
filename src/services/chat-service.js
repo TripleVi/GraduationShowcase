@@ -54,16 +54,17 @@ async function getMessages(chatId, userId, params) {
 async function addChat(data) {
     const response = await axiosInstance.post('/chats', data)
     const { message_id: messageId } = response.data
-    const message = await db.Message.findByPk(messageId)
-    const chat = await message.getChat({
-        attributes: ['id', 'title'],
+    const message = await db.Message.findByPk(messageId, {
+        attributes: ['content', 'createdAt'],
+        include: {
+            model: db.Chat,
+            attributes: ['id', 'title'],
+        },
     })
+    const { content, createdAt, chat } = message
     return {
         chat,
-        message: {
-            content: message.content,
-            createdAt: message.createdAt,
-        }
+        message: { content, createdAt },
     }
 }
 

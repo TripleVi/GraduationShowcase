@@ -1,7 +1,12 @@
+import axios from 'axios'
 import { literal, Op } from 'sequelize'
 
 import db from '../models'
 import * as storageService from './storage-service'
+
+const axiosInstance = axios.create({
+    baseURL: process.env.CHATBOT_DOMAIN,
+})
 
 async function getProjects(params) {
     // sort: year, views, and likes
@@ -276,6 +281,8 @@ async function addProject(project, files) {
         await Promise.all(createPromises)
         
         await transaction.commit()
+
+        axiosInstance.post(`/projects/${project.id}`, { status: "created" })
         return project
     } catch (error) {
         await transaction.rollback()
@@ -318,6 +325,7 @@ async function updateProject(id, project) {
         await Promise.all(hashtagPromises)
 
         await transaction.commit()
+        axiosInstance.post(`/projects/${id}`, { status: "updated" })
     } catch (error) {
         await transaction.rollback()
         throw error
@@ -501,6 +509,8 @@ async function removeProject(id) {
         // delete comment
 
         await transaction.commit()
+
+        axiosInstance.post(`/projects/${id}`, { status: "deleted" })
     } catch (error) {
         await transaction.rollback()
         throw error

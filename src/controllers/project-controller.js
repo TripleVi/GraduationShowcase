@@ -2,12 +2,6 @@ import * as projectService from '../services/project-service'
 import * as errors from '../utils/errors'
 
 const fetchProjects = async (req, res) => {
-    // fetch all projects cho admin -> projects
-    // fetch projects by topic -> topics/:id/projects
-    // fetch projects by major -> majors/:id/projects
-    // 
-
-    // /projects
     const options = req.query
     try {
         const projects = await projectService.getProjects(options)

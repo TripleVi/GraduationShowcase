@@ -56,22 +56,19 @@ async function getProjects(params) {
             options.where = { year }
             countOptions.where.year = year
         }else if(hashtagPattern.test(search)) {
-            const name = search.slice(1)
-            options.where = {
-                id: {
-                    [Op.in]: literal(`(
-                        SELECT ph.project_id FROM project_hashtag AS ph 
-                        INNER JOIN hashtag AS h ON ph.hashtag_id = h.id AND h.name = ?
-                    )`)
-                }
-            }
-            options.replacements = [name]
-            countOptions.include.push({
-                model: db.Hashtag,
-                attributes: [],
-                through: { attributes: [] },
-                where: { name },
-            })
+            const names = search.slice(1).split(',')
+            const raw_query = literal(`(
+                SELECT ph.project_id FROM project_hashtag AS ph 
+                INNER JOIN hashtag AS h ON ph.hashtag_id = h.id
+                WHERE h.name IN (?)
+                GROUP BY ph.project_id
+                HAVING COUNT(ph.project_id) = ?
+            )`)
+            const replacements = [names, names.length]
+            options.where = { id: { [Op.in]: raw_query } }
+            options.replacements = replacements
+            countOptions.where.id = { [Op.in]: raw_query }
+            countOptions.replacements = replacements
         }else {
             countOptions.include.push({
                 model: db.Author,
@@ -131,6 +128,7 @@ async function getProjects(params) {
         }
     }
     const totalItems = await db.Project.count(countOptions)
+    console.log(totalItems)
     const metadata = { totalItems }
     const projects = await db.Project.findAll(options)
     const data = projects.map(p => {

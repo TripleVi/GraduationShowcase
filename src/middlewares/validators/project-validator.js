@@ -43,45 +43,59 @@ const checkGetDetail = async (req, res, next) => {
     res.sendStatus(404)
 }
 
+function validateDescCustom(desc) {
+    const length = desc.reduce((accumulator, current) => 
+            accumulator + current.content.length, 0)
+    if(length > 65000) {
+        throw new Error('Description length is greater than 65k characters')
+    }
+    return true
+}
+
+function validateTitleCustom(title) {
+    return true
+    const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_. \p{Latin}]+$/ig
+    if(!pattern.test(title)) {
+        throw new Error('Invalid character')
+    }
+}
+
+function validateHashtagsCustom(hashtags) {
+    const seen = new Set(hashtags)
+    if(seen.size != hashtags.length) {
+        throw new Error('Duplicate values')
+    }
+    return true
+}
+
+function validateAuthorsCustom(authors) {
+    const seen = new Set(authors.map(a => a.email))
+    if(seen.size != authors.length) {
+        throw new Error('Duplicate emails')
+    }
+    return true
+}
+
 const checkPost = async (req, res, next) => {
     const avatarCount = req.files.avatars?.length || 0
-    const count = Array(avatarCount).fill(1)
+    const photoCount = req.files.photos?.length || 0
+    const avatarCheck = Array(avatarCount).fill(1)
+    const photoCheck = Array(photoCount).fill(1)
     await checkSchema({
-        title: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
-            const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_. ]+$/ig
-            if(!pattern.test(value)) {
-                throw new Error('Invalid character')
-            }
-            return true
-        }, bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
-        description: { trim: true, notEmpty: { bail: true }, custom: { options: value => {
-            const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_. ()]+$/ig
-            if(!pattern.test(value)) {
-                throw new Error('Invalid character')
-            }
-            return true
-        }, bail: true }, isLength: { options: { min: 3, max: 65000 } }, escape: true },
+        title: { isString: { bail: true }, trim: true, notEmpty: { bail: true }, custom: { options: validateTitleCustom, bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        description: { isArray: { options: { min: 1, max: 20 }, bail: true }, custom: { options: validateDescCustom } },
+        'description.*.title': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        'description.*.content': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3 } }, escape: true },
+        'description.*.fileIndex': { optional: true, isInt: { options: { min: 0, max: photoCount-1 }, bail: true }, custom: { options: value => !--photoCheck[value] } },
         year: { isInt: { options: { min: 2009, max: 2150 } } },
-        videoId: { optional: true, trim: true, notEmpty: { bail: true }, escape: true },
+        videoId: { optional: true, isString: { bail: true }, trim: true, notEmpty: true, escape: true },
         topicId: { isInt: true },
-        hashtags: { isArray: { options: { max: 5 }, bail: true }, custom: { options: values => {
-            const seen = new Set(values)
-            if(seen.size == values.length) {
-                return true
-            }
-            throw new Error('Duplicate values')
-        } } },
-        'hashtags.*': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
-        authors: { isArray: { options: { min: avatarCount, max: 10 } }, custom: { options: values => {
-            const seen = new Set(values.map(v => v.email))
-            if(seen.size == values.length) {
-                return true
-            }
-            throw new Error('Duplicate emails')
-        } } },
-        'authors.*.name': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
-        'authors.*.email': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
-        'authors.*.fileIndex': { optional: true, isInt: { options: { min: 0, max: avatarCount-1 }, bail: true }, custom: { options: value => !--count[value], bail: true } },
+        hashtags: { isArray: { options: { max: 5 }, bail: true }, custom: { options: validateHashtagsCustom } },
+        'hashtags.*': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
+        authors: { isArray: { options: { min: avatarCount, max: 10 }, bail: true }, custom: { options: validateAuthorsCustom } },
+        'authors.*.name': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        'authors.*.email': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        'authors.*.fileIndex': { optional: true, isInt: { options: { min: 0, max: avatarCount-1 }, bail: true }, custom: { options: value => !--avatarCheck[value] } },
     }, ['body']).run(req)
     const result = validationResult(req)
     if(!result.isEmpty()) {
@@ -97,31 +111,15 @@ const checkPost = async (req, res, next) => {
 
 const checkPut = async (req, res, next) => {
     await checkSchema({
-        title: { isString: true, trim: true, notEmpty: { bail: true }, custom: { options: value => {
-            const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_. ]+$/ig
-            if(!pattern.test(value)) {
-                throw new Error('Invalid character')
-            }
-            return true
-        }, bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
-        description: { isString: true, trim: true, notEmpty: { bail: true }, custom: { options: value => {
-            const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_. ()]+$/ig
-            if(!pattern.test(value)) {
-                throw new Error('Invalid character')
-            }
-            return true
-        }, bail: true }, isLength: { options: { min: 3, max: 65000 } }, escape: true },
+        title: { isString: { bail: true }, trim: true, notEmpty: { bail: true }, custom: { options: validateTitleCustom, bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        description: { isArray: { options: { min: 1, max: 20 }, bail: true }, custom: { options: validateDescCustom } },
+        'description.*.title': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
+        'description.*.content': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3 } }, escape: true },
         year: { isInt: { options: { min: 2009, max: 2150 } } },
         topicId: { isInt: true },
         videoId: { isString: { if: value => value !== null, bail: true }, trim: true, notEmpty: { bail: true }, escape: true },
-        hashtags: { isArray: { options: { max: 5 }, bail: true }, custom: { options: values => {
-            const seen = new Set(values)
-            if(seen.size == values.length) {
-                return true
-            }
-            throw new Error('Duplicate values')
-        } } },
-        'hashtags.*': { trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
+        hashtags: { isArray: { options: { max: 5 }, bail: true }, custom: { options: validateHashtagsCustom } },
+        'hashtags.*': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 2, max: 40 } }, escape: true },
         id: { in: 'params', trim: true, toInt: true },
     }, ['body']).run(req)
 

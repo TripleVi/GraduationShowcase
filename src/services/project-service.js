@@ -377,8 +377,8 @@ async function addAuthors(id, authors, files) {
     if(emailCount) {
         throw { code: 'EMAIL_EXISTS' }
     }
-    const filepaths = files.map(f => f.path)
-    const fileUrls = await storageService.uploadFilesFromLocal(filepaths)
+    files.forEach(f => f.ref = `projects/${id}/${f.filename}`)
+    const fileUrls = await storageService.uploadFilesFromLocal(files)
     const newFiles = files.map((f, i) => ({
         url: fileUrls[i],
         name: f.filename,
@@ -409,8 +409,8 @@ async function addPhotos(id, files) {
     if(!project) {
         throw { code: 'PROJECT_NOT_EXIST' }
     }
-    const filepaths = files.map(f => f.path)
-    const fileUrls = await storageService.uploadFilesFromLocal(filepaths)
+    files.forEach(f => f.ref = `projects/${id}/${f.filename}`)
+    const fileUrls = await storageService.uploadFilesFromLocal(files)
     const newFiles = files.map((f, i) => ({
         url: fileUrls[i],
         name: f.filename,
@@ -443,7 +443,8 @@ async function removePhoto(projectId, photoId) {
     try {
         const photo = project.photos[0]
         const file = await photo.getFile()
-        await storageService.deleteFile(file.name)
+        const fileRef = `projects/${projectId}/${file.name}`
+        await storageService.deleteFile(fileRef)
         await photo.destroy({ transaction })
         await file.destroy({ transaction })
 

@@ -24,7 +24,8 @@ async function updateAvatar(id, file) {
     }
     const transaction = await db.sequelize.transaction()
     try {
-        const fileUrl = await storageService.uploadFromLocal(file.path)
+        file.ref = `projects/${author.projectId}/${file.filename}`
+        const fileUrl = await storageService.uploadFromLocal(file)
         const newAvatar = {
             url: fileUrl,
             name: file.filename,
@@ -35,7 +36,8 @@ async function updateAvatar(id, file) {
         }
         const oldAvatar = await author.getAvatar()
         await author.createAvatar(newAvatar, { transaction })
-        await storageService.deleteFile(oldAvatar.name)
+        const fileRef = `projects/${author.projectId}/${oldAvatar.name}`
+        await storageService.deleteFile(fileRef)
         await oldAvatar.destroy({ transaction })
 
         await transaction.commit()
@@ -53,7 +55,8 @@ async function deleteAuthor(id) {
     const avatar = await author.getAvatar()
     const transaction = await db.sequelize.transaction()
     try {
-        await storageService.deleteFile(avatar.name)
+        const fileRef = `projects/${author.projectId}/${avatar.name}`
+        await storageService.deleteFile(fileRef)
         await author.destroy({ transaction })
         await avatar.destroy({ transaction })
 

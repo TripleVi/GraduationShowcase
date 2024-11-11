@@ -32,6 +32,30 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
       },
+      {
+        name: 'AI',
+        major_id: 2,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        name: 'Cybersecurity',
+        major_id: 1,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        name: 'Game',
+        major_id: 1,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        name: 'IoT',
+        major_id: 1,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
     ]);
   },
 

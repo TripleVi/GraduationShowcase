@@ -20,6 +20,7 @@ const typesForFileFields = {
     'photos': 'image',
     'report': 'report',
     'avatars': 'image',
+    'avatar': 'image',
 }
 
 function filename(_, file, cb) {
@@ -206,7 +207,7 @@ function uploadAvatar(req, res, next) {
             return res.status(400).send({
                 code: 'INVALID_VALUE',
                 location: 'body',
-                field: 'report',
+                field: 'avatar',
             })
         }
         const error = validateFiles([req.file])

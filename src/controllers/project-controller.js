@@ -76,6 +76,9 @@ const editProject = async (req, res) => {
             case 'TOPIC_NOT_EXIST':
                 res.status(409).send(errors.TOPIC_NOT_EXIST)
                 break
+            case 'PHOTO_NOT_EXIST':
+                res.status(409).send(errors.PHOTO_NOT_EXIST)
+                break
             default:
                 console.log(error)
                 res.sendStatus(500)

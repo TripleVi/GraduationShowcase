@@ -79,3 +79,10 @@ export const CHAT_DEL_FORBIDDEN = Object.freeze({
     code: 'ACTION_FORBIDDEN',
     message: 'Only the creator can delete this chat!'
 })
+
+// ---------------Photo Errors---------------
+
+export const PHOTO_NOT_EXIST = Object.freeze({
+    code: 'PHOTO_NOT_EXIST',
+    message: 'Photo does not exist!'
+})

@@ -52,6 +52,20 @@ function validateDescCustom(desc) {
     return true
 }
 
+function validatePutDescCustom(desc) {
+    const photoIds = []
+    for(const { photoId } of desc) {
+        if(photoId) {
+            photoIds.push(photoId)
+        }
+    }
+    const seen = new Set(photoIds)
+    if(seen.size !== photoIds.length) {
+        throw new Error('Duplicate photos')
+    }
+    validateDescCustom(desc)
+}
+
 function validateTitleCustom(title) {
     return true
     const pattern = /^(?=.*?[a-zA-Z])[A-Za-z0-9_. \p{Latin}]+$/ig
@@ -112,9 +126,10 @@ const checkPost = async (req, res, next) => {
 const checkPut = async (req, res, next) => {
     await checkSchema({
         title: { isString: { bail: true }, trim: true, notEmpty: { bail: true }, custom: { options: validateTitleCustom, bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
-        description: { isArray: { options: { min: 1, max: 20 }, bail: true }, custom: { options: validateDescCustom } },
+        description: { isArray: { options: { min: 1, max: 20 }, bail: true }, custom: { options: validatePutDescCustom } },
         'description.*.title': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
         'description.*.content': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3 } }, escape: true },
+        'description.*.photoId': { optional: true, isInt: true },
         year: { isInt: { options: { min: 2009, max: 2150 } } },
         topicId: { isInt: true },
         videoId: { isString: { if: value => value !== null, bail: true }, trim: true, notEmpty: { bail: true }, escape: true },

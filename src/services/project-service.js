@@ -307,6 +307,18 @@ async function updateProject(id, project) {
         throw { code: 'TOPIC_NOT_EXIST' }
     }
     const { hashtags, ...values } = project
+    const photoIds = []
+    for(const { photoId } of values.description) {
+        if(photoId) {
+            photoIds.push(photoId)
+        }
+    }
+    const count = await currentProject.countPhotos({
+        where: { id: { [Op.in]: photoIds } },
+    })
+    if(count !== photoIds.length) {
+        throw { code: 'PHOTO_NOT_EXIST' }
+    }
     const transaction = await db.sequelize.transaction()
     try {
         await currentProject.setHashtags([], { transaction })
@@ -332,7 +344,7 @@ async function updateProject(id, project) {
         await Promise.all(hashtagPromises)
 
         await transaction.commit()
-        axiosInstance.post(`/projects/${id}`, { status: "updated" })
+        // axiosInstance.post(`/projects/${id}`, { status: "updated" })
     } catch (error) {
         await transaction.rollback()
         throw error

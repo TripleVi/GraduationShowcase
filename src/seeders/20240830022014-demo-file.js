@@ -10,6 +10,8 @@ module.exports = {
         original_name: 'report.pdf',
         size: '5000',
         mime_type: 'application/pdf',
+        storage_type: 'cloud',
+        created_at: new Date(),
       },
       {
         url: 'https://media-cdn-v2.laodong.vn/storage/newsportal/2024/6/19/1354832/Rose-Blackpink-1A.jpeg?w=560',
@@ -17,6 +19,8 @@ module.exports = {
         original_name: 'model.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
+        storage_type: 'cloud',
+        created_at: new Date(),
       },
       {
         url: 'https://media-cdn-v2.laodong.vn/storage/newsportal/2024/6/19/1354832/Rose-Blackpink-1A.jpeg?w=660',
@@ -24,6 +28,8 @@ module.exports = {
         original_name: 'app.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
+        storage_type: 'cloud',
+        created_at: new Date(),
       },
       {
         url: 'https://media-cdn-v2.laodong.vn/storage/newsportal/2024/6/19/1354832/Rose-Blackpink-1A.jpeg?w=760',
@@ -31,6 +37,8 @@ module.exports = {
         original_name: 'idea.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
+        storage_type: 'cloud',
+        created_at: new Date(),
       },
       {
         url: 'https://i.mydramalist.com/66L5p_5c.jpg',
@@ -38,6 +46,8 @@ module.exports = {
         original_name: 'avatar.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
+        storage_type: 'cloud',
+        created_at: new Date(),
       },
       {
         url: 'https://media-cdn-v2.laodong.vn/storage/newsportal/2024/6/19/1354832/Rose-Blackpink-1A.jpeg?w=360',
@@ -45,6 +55,8 @@ module.exports = {
         original_name: 'avatar2.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
+        storage_type: 'cloud',
+        created_at: new Date(),
       },
     ]);
   },

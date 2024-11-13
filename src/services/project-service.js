@@ -188,14 +188,15 @@ async function getProjectDetail(id) {
         values.avatarUrl = avatar ? avatar.url : null
         return values
     })
-    data.photoUrls = photos.map(p => p.file.url)
+    data.photos = photos.map(p => ({ id: p.id, url: p.file.url }))
     await project.update({ views: project.views+1 })
     return data
 }
 
 async function addProject(project, files) {
     const { hashtags, authors, ...newProject } = project
-    const topic = await db.Topic.findByPk(newProject.topicId)
+    const { description, topicId } = newProject
+    const topic = await db.Topic.findByPk(topicId)
     if(!topic) {
         throw { code: 'TOPIC_NOT_EXIST' }
     }
@@ -206,15 +207,15 @@ async function addProject(project, files) {
     if(count) {
         throw { code: 'EMAIL_EXISTS' }
     }
-
     const { report, photos, avatars } = files
     const allFiles = []
     if(report) allFiles.push(...report)
-    if(photos) allFiles.push(...photos)
     if(avatars) allFiles.push(...avatars)
+    if(photos) allFiles.push(...photos)
     const transaction = await db.sequelize.transaction()
     try {
         const createPromises = []
+        newProject.description = []
         const project = await db.Project.create(newProject, { transaction })
         const existingHashtags = await db.Hashtag.findAll({
             where: { name: { [Op.or]: hashtags } },
@@ -276,11 +277,19 @@ async function addProject(project, files) {
                 })
             )
         }
-        await Promise.all(createPromises)
-        
+        const results = await Promise.all(createPromises)
+        const createdPhotos = results[createPromises.length-1]
+        const desc = description.map(section => {
+            const { fileIndex, ...values } = section
+            if(typeof fileIndex == 'number') {
+                values.photoId = createdPhotos[fileIndex].id
+            }
+            return values
+        })
+        await project.update({ description: desc }, { transaction })
         await transaction.commit()
 
-        axiosInstance.post(`/projects/${project.id}`, { status: "created" })
+        // axiosInstance.post(`/projects/${project.id}`, { status: "created" })
         return project
     } catch (error) {
         await transaction.rollback()

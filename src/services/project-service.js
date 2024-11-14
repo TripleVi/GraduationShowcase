@@ -450,25 +450,38 @@ async function addPhotos(id, files) {
     })
 }
 
-async function removePhoto(projectId, photoId) {
+async function removePhoto(id, projectId) {
     const project = await db.Project.findByPk(projectId, {
+        attributes: ['id', 'description'],
         include: {
             model: db.Photo,
-            where: { id: photoId }
-        }
+            where: { id },
+        },
     })
     if(!project) {
         throw { code: 'PROJECT_NOT_EXIST' }
     }
+    const { description, photos: [photo] } = project.get()
     const transaction = await db.sequelize.transaction()
     try {
-        const photo = project.photos[0]
         const file = await photo.getFile()
         const fileRef = `projects/${projectId}/${file.name}`
-        await storageService.deleteFile(fileRef)
         await photo.destroy({ transaction })
-        await file.destroy({ transaction })
-
+        const removePromises = [file.destroy({ transaction })]
+        for (let i = 0; i < description.length; i++) {
+            const { photoId, ...values } = description[i]
+            if(id === photoId) {
+                const desc = [...description]
+                desc[i] = values
+                removePromises.push(project.update(
+                    { description: desc },
+                    { transaction }
+                ))
+                break
+            }
+        }
+        await Promise.all(removePromises)
+        await storageService.deleteFile(fileRef)
         await transaction.commit()
     } catch (error) {
         await transaction.rollback()

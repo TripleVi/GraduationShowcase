@@ -145,10 +145,10 @@ const createPhotos = async (req, res) => {
 }
 
 const deletePhoto = async (req, res) => {
-    const projectId = req.params.id
-    const photoId = req.params.pid
+    const projectId = Number(req.params.id)
+    const photoId = Number(req.params.pid)
     try {
-        await projectService.removePhoto(projectId, photoId)
+        await projectService.removePhoto(photoId, projectId)
         res.sendStatus(204)
     } catch (error) {
         switch (error.code) {

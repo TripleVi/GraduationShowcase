@@ -63,7 +63,7 @@ function validatePutDescCustom(desc) {
     if(seen.size !== photoIds.length) {
         throw new Error('Duplicate photos')
     }
-    validateDescCustom(desc)
+    return validateDescCustom(desc)
 }
 
 function validateTitleCustom(title) {

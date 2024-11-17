@@ -1,4 +1,10 @@
+import axios from 'axios'
+
 import db from '../models'
+
+const axiosInstance = axios.create({
+    baseURL: process.env.CHATBOT_DOMAIN,
+})
 
 async function getMajors(params) {
     const upperLimit = 25
@@ -19,13 +25,15 @@ async function getMajors(params) {
 }
 
 async function addMajor(major) {
-    const count = await db.Major.count({ 
+    const count = await db.Major.count({
         where: { name: major.name },
     })
     if(count) {
         throw { code: 'MAJOR_EXISTS' }
     }
-    return db.Major.create(major)
+    const result = await db.Major.create(major)
+    axiosInstance.post(`/majors/${result.id}`, { status: "created" })
+    return result
 }
 
 async function updateMajor(major) {

@@ -20,7 +20,7 @@ router.post('/:id/photos', verifyJWT, isAdmin, upload.uploadPhotos, projectCtrl.
 router.delete('/:id/photos/:pid', verifyJWT, isAdmin, projectCtrl.deletePhoto)
 router.post('/:id/reaction', verifyJWT, projectCtrl.createReaction)
 router.delete('/:id/reaction', verifyJWT, projectCtrl.deleteReaction)
-router.get('/:id/comments', commentCtrl.fetchOrphanComments)
+router.get('/:id/comments', commentVal.checkGet, commentCtrl.fetchOrphanComments)
 router.post('/:id/comments', verifyJWT, commentVal.checkPostComment, commentCtrl.createComment)
 
 export default router

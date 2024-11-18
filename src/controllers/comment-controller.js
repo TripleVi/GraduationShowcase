@@ -2,21 +2,33 @@ import * as commentService from '../services/comment-service'
 import * as errors from '../utils/errors'
 
 const fetchOrphanComments = async (req, res) => {
-    let id = req.params.id.trim()
-    if(!id) {
-        return res.sendStatus(404)
-    }
-    id = Number(id)
+    const id = req.params.id
+    const options = req.query
     try {
-        const results = await commentService.getOrphanComments(id)
-        res.status(200).send(results)
+        const comments = await commentService.getOrphanComments(id, options)
+        res.status(200).send(comments)
     } catch (error) {
         switch (error.code) {
             case 'PROJECT_NOT_EXIST':
                 res.sendStatus(404)
                 break
-            case 'BAD_REQUEST':
-                res.sendStatus(400)
+            default:
+                console.log(error)
+                res.sendStatus(500)
+        }
+    }
+}
+
+const fetchDescendantComments = async (req, res) => {
+    const id = req.params.id
+    const options = req.query
+    try {
+        const comments = await commentService.getDescendantComments(id, options)
+        res.status(200).send(comments)
+    } catch (error) {
+        switch (error.code) {
+            case 'COMMENT_NOT_EXIST':
+                res.sendStatus(404)
                 break
             default:
                 console.log(error)
@@ -97,4 +109,4 @@ const deleteComment = async (req, res) => {
     }
 }
 
-export { fetchOrphanComments, createComment, editComment, deleteComment }
+export { fetchOrphanComments, fetchDescendantComments, createComment, editComment, deleteComment }

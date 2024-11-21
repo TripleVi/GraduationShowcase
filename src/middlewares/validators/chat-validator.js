@@ -19,7 +19,7 @@ const checkGet = async (req, res, next) => {
 
 const checkPost = async (req, res, next) => {
     await checkSchema({
-        content: { isString: true, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 3000 } }, escape: true },
+        content: { isString: true, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 1000 } }, escape: true },
     }, ['body']).run(req)
     
     const result = validationResult(req)

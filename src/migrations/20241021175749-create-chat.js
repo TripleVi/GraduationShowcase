@@ -24,10 +24,12 @@ module.exports = {
         allowNull: false
       },
       summary: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       summary_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
       },
       created_at: {
         type: Sequelize.DATE,

@@ -60,6 +60,9 @@ const createMessage = async (req, res) => {
             case 'CHAT_NOT_EXIST':
                 res.sendStatus(404)
                 break
+            case 'CHAT_IS_PROCESSING':
+                res.status(409).send(errors.CHAT_IS_PROCESSING)
+                break
             default:
                 console.log(error)
                 res.sendStatus(500)

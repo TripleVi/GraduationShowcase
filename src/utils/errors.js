@@ -80,6 +80,11 @@ export const CHAT_DEL_FORBIDDEN = Object.freeze({
     message: 'Only the creator can delete this chat!'
 })
 
+export const CHAT_IS_PROCESSING = Object.freeze({
+    code: 'CHAT_IS_PROCESSING',
+    message: 'Previous message is still being processed. Please wait for it to complete!'
+})
+
 // ---------------Photo Errors---------------
 
 export const PHOTO_NOT_EXIST = Object.freeze({

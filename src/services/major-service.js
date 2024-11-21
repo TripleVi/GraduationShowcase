@@ -2,9 +2,11 @@ import axios from 'axios'
 
 import db from '../models'
 
-const axiosInstance = axios.create({
-    baseURL: process.env.CHATBOT_DOMAIN,
-})
+function axiosChatbot() {
+    return axios.create({
+        baseURL: process.env.CHATBOT_DOMAIN,
+    })
+}
 
 async function getMajors(params) {
     const upperLimit = 25
@@ -32,7 +34,7 @@ async function addMajor(major) {
         throw { code: 'MAJOR_EXISTS' }
     }
     const result = await db.Major.create(major)
-    axiosInstance.post(`/majors/${result.id}`, { status: "created" })
+    axiosChatbot().post(`/majors/${result.id}`, { status: "created" })
     return result
 }
 
@@ -47,6 +49,7 @@ async function updateMajor(major) {
     })
     if(!existingMajor) {
         await currentMajor.update(major)
+        axiosChatbot().post(`/majors/${major.id}`, { status: "updated" })
     }else if(existingMajor.id !== major.id) {
         throw { code: 'MAJOR_EXISTS' }
     }
@@ -62,6 +65,7 @@ async function removeMajor(id) {
         throw { code: 'MAJOR_HAS_TOPICS' }
     }
     await major.destroy()
+    axiosChatbot().post(`/majors/${id}`, { status: "deleted" })
 }
 
 export { getMajors, addMajor, updateMajor, removeMajor }

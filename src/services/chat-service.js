@@ -1,10 +1,29 @@
 import axios from 'axios'
 
 import db from '../models'
+import redis from '../config/redis'
 
-const axiosInstance = axios.create({
-    baseURL: process.env.CHATBOT_DOMAIN,
-})
+function axiosChatbot() {
+    return axios.create({
+        baseURL: process.env.CHATBOT_DOMAIN,
+    })
+}
+
+async function isProcessing(userId, chatId) {
+    const db = await redis.instance
+    const value = await db.get(`${userId}#chat${chatId}`)
+    return value === 'true'
+}
+
+async function startProcessing(userId, chatId) {
+    const db = await redis.instance
+    await db.set(`${userId}#chat${chatId}`, 'true')
+}
+
+async function finishProcessing(userId, chatId) {
+    const db = await redis.instance
+    await db.del(`${userId}#chat${chatId}`)
+}
 
 async function getChats(userId, params) {
     const upperLimit = 25
@@ -52,7 +71,7 @@ async function getMessages(chatId, userId, params) {
 }
 
 async function addChat(data) {
-    const response = await axiosInstance.post('/chats', data)
+    const response = await axiosChatbot().post('/chats', data)
     const { message_id: messageId } = response.data
     const message = await db.Message.findByPk(messageId, {
         attributes: ['content', 'createdAt'],
@@ -71,17 +90,27 @@ async function addChat(data) {
 async function addMessage(params) {
     const { userId, chatId, data } = params
     const chat = await db.Chat.findOne({
+        attributes: ['id'],
         where: { id: chatId, userId },
     })
     if(!chat) {
         throw { code: 'CHAT_NOT_EXIST' }
     }
+
+    const flag = await isProcessing(userId, chatId)
+    if(flag) {
+        throw { code: 'CHAT_IS_PROCESSING' }
+    }
+    await startProcessing(userId, chatId)
+
     const url = `/chats/${chatId}/messages`
-    const response = await axiosInstance.post(url, data)
+    const response = await axiosChatbot().post(url, data)
     const { message_id: messageId } = response.data
     const message = await db.Message.findByPk(messageId, {
         attributes: ['content', 'createdAt'],
     })
+
+    setTimeout(() => finishProcessing(userId, chatId), 3000)
     return message
 }
 

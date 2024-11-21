@@ -26,6 +26,9 @@ module.exports = {
       summary: {
         type: Sequelize.STRING,
       },
+      summary_id: {
+        type: Sequelize.INTEGER,
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false

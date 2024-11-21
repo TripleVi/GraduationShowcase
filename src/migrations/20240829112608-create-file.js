@@ -11,11 +11,11 @@ module.exports = {
       },
       url: {
         type: Sequelize.STRING,
-        unique: true,
       },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       original_name: {
         type: Sequelize.STRING,

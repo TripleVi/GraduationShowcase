@@ -33,17 +33,18 @@ const fetchMessages = async (req, res) => {
 }
 
 const createChat = async (req, res) => {
-    const data = {
+    const params = {
         userId: req.User.uid,
         ...req.body,
     }
     try {
-        const result = await chatService.addChat(data)
-        res.setHeader('Content-Type', result.headers['content-type'])
-        // res.setHeader('Connection', result.headers['connection'])
-        res.setHeader('Cache-Control', result.headers['cache-control'])
-        res.status(result.status)
-        result.data.pipe(res)
+        const result = await chatService.addChat(params)
+        const { headers, status, data } = result
+        res.setHeader('Content-Type', headers['content-type'])
+        // res.setHeader('Connection', headers['connection'])
+        res.setHeader('Cache-Control', headers['cache-control'])
+        res.status(status)
+        data.pipe(res)
     } catch (error) {
         console.log(error)
         res.sendStatus(500)

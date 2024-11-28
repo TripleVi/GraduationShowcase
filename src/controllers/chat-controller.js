@@ -39,7 +39,11 @@ const createChat = async (req, res) => {
     }
     try {
         const result = await chatService.addChat(data)
-        res.status(201).send(result)
+        res.setHeader('Content-Type', result.headers['content-type'])
+        // res.setHeader('Connection', result.headers['connection'])
+        res.setHeader('Cache-Control', result.headers['cache-control'])
+        res.status(result.status)
+        result.data.pipe(res)
     } catch (error) {
         console.log(error)
         res.sendStatus(500)

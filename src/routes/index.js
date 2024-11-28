@@ -18,6 +18,10 @@ function initRoutes(app) {
     app.use('/api/v1/settings', settingRouter)
     app.use('/api/v1/backups', backupRouter)
     app.use('/api/v1/chats', chatRouter)
+
+    app.get('', (_, res) => {
+        res.status(200).send("<h1>Greenwich Vietnam's Graduation Showcase API</h1>")
+    })
 }
 
 export default initRoutes

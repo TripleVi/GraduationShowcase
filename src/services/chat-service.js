@@ -6,6 +6,7 @@ import redis from '../config/redis'
 function axiosChatbot() {
     return axios.create({
         baseURL: process.env.CHATBOT_DOMAIN,
+        responseType: 'stream',
     })
 }
 
@@ -71,20 +72,21 @@ async function getMessages(chatId, userId, params) {
 }
 
 async function addChat(data) {
-    const response = await axiosChatbot().post('/chats', data)
-    const { message_id: messageId } = response.data
-    const message = await db.Message.findByPk(messageId, {
-        attributes: ['content', 'createdAt'],
-        include: {
-            model: db.Chat,
-            attributes: ['id', 'title'],
-        },
-    })
-    const { content, createdAt, chat } = message
-    return {
-        chat,
-        message: { content, createdAt },
-    }
+    return axiosChatbot().post('/chats', data)
+    // const response = await axiosChatbot().post('/chats', data)
+    // const { message_id: messageId } = response.data
+    // const message = await db.Message.findByPk(messageId, {
+    //     attributes: ['content', 'createdAt'],
+    //     include: {
+    //         model: db.Chat,
+    //         attributes: ['id', 'title'],
+    //     },
+    // })
+    // const { content, createdAt, chat } = message
+    // return {
+    //     chat,
+    //     message: { content, createdAt },
+    // }
 }
 
 async function addMessage(params) {

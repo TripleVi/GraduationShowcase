@@ -92,14 +92,7 @@ async function addMessage(params) {
     await startProcessing(userId, chatId)
 
     const url = `/chats/${chatId}/messages`
-    const response = await axiosChatbot().post(url, data)
-    const { message_id: messageId } = response.data
-    const message = await db.Message.findByPk(messageId, {
-        attributes: ['content', 'createdAt'],
-    })
-
-    setTimeout(() => finishProcessing(userId, chatId), 3000)
-    return message
+    return axiosChatbot().post(url, data)
 }
 
 async function removeChat(id, userId) {
@@ -116,4 +109,4 @@ async function removeChat(id, userId) {
     await chat.destroy()
 }
 
-export { getChats, getMessages, addChat, addMessage, removeChat }
+export { getChats, getMessages, addChat, addMessage, removeChat, finishProcessing }

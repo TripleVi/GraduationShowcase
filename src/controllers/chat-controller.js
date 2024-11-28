@@ -40,8 +40,9 @@ const createChat = async (req, res) => {
     try {
         const result = await chatService.addChat(params)
         const { headers, status, data } = result
+        console.log(headers)
         res.setHeader('Content-Type', headers['content-type'])
-        // res.setHeader('Connection', headers['connection'])
+        res.setHeader('Connection', headers['connection'])
         res.setHeader('Cache-Control', headers['cache-control'])
         res.status(status)
         data.pipe(res)
@@ -59,7 +60,16 @@ const createMessage = async (req, res) => {
     }
     try {
         const result = await chatService.addMessage(params)
-        res.status(201).send(result)
+        const { headers, status, data } = result
+        res.setHeader('Content-Type', headers['content-type'])
+        res.setHeader('Connection', headers['connection'])
+        res.setHeader('Cache-Control', headers['cache-control'])
+        res.status(status)
+        res.on('close', () => setTimeout(
+            () => chatService.finishProcessing(userId, chatId),
+            3000
+        ))
+        data.pipe(res)
     } catch (error) {
         switch (error.code) {
             case 'CHAT_NOT_EXIST':

@@ -19,7 +19,6 @@ module.exports = {
       },
       original_name: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       size: {
         type: Sequelize.STRING,
@@ -28,11 +27,6 @@ module.exports = {
       mime_type: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      storage_type: {
-        type: Sequelize.ENUM('local', 'cloud'),
-        allowNull: false,
-        defaultValue: 'local',
       },
       created_at: {
         type: Sequelize.DATE,

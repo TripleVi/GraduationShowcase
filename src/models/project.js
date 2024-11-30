@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Project.belongsTo(models.Topic)
       Project.belongsTo(models.File, { as: 'report' })
+      Project.belongsTo(models.File, { as: 'thumbnail' })
       Project.hasMany(models.Author)
       Project.hasMany(models.Photo)
       Project.belongsToMany(models.Hashtag, { through: models.ProjectHashtag })

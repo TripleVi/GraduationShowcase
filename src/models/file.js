@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       File.hasOne(models.Project, { as: 'report' })
+      File.hasOne(models.Project, { as: 'thumbnail' })
       File.hasOne(models.Photo, { foreignKey: 'fileId' })
       File.hasOne(models.Author, { as: 'avatar' })
     }
@@ -21,8 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     originalName: DataTypes.STRING,
     size: DataTypes.STRING,
-    mimeType: DataTypes.STRING,
-    storageType: DataTypes.ENUM('local', 'cloud')
+    mimeType: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'File',

@@ -13,10 +13,7 @@ async function getDBBackups(params) {
     const { limit = upperLimit, offset = 0 } = params
     const options = {
         attributes: ['id', 'name', 'size', 'mimeType'],
-        where: {
-            mimeType: 'application/x-sql',
-            storageType: 'local',
-        },
+        where: { mimeType: 'application/x-sql' },
         order: [['createdAt', 'DESC']],
         offset,
         limit: Math.min(limit, upperLimit),
@@ -33,10 +30,7 @@ async function getDBBackups(params) {
 async function getBackupDetail(id) {
     const backup = await db.File.findOne({
         attributes: ['id', 'name', 'size', 'mimeType'],
-        where: {
-            id,
-            storage_type: 'local',
-        }
+        where: { id },
     })
     if(!backup) {
         throw { code: 'BACKUP_NOT_EXIST' }
@@ -50,7 +44,6 @@ async function removeBackup(id) {
         where: {
             id,
             mimeType: 'application/x-sql',
-            storage_type: 'local',
         }
     })
     if(!backup) {
@@ -123,7 +116,6 @@ async function restoreBackup(id) {
         where: {
             id,
             mimeType: 'application/x-sql',
-            storage_type: 'local',
         }
     })
     if(!backup) {

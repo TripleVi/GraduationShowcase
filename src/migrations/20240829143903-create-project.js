@@ -21,6 +21,15 @@ module.exports = {
         type: Sequelize.SMALLINT.UNSIGNED,
         allowNull: false,
       },
+      thumbnail_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'file',
+          key: 'id'
+        },
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      },
       video_id: {
         type: Sequelize.STRING
       },

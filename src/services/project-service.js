@@ -241,7 +241,6 @@ async function addProject(project, files) {
             originalName: f.originalname,
             size: f.size,
             mimeType: f.mimetype,
-            storageType: 'cloud',
         }))
         let index = 0
         if(report) {
@@ -368,7 +367,6 @@ async function updateReport(id, file) {
             originalName: file.originalname,
             size: file.size,
             mimeType: file.mimetype,
-            storageType: 'cloud',
         }
         const oldReport = await project.getReport()
         await project.createReport(newReport, { transaction })
@@ -408,7 +406,6 @@ async function addAuthors(id, authors, files) {
         originalName: f.originalname,
         size: f.size,
         mimeType: f.mimetype,
-        storageType: 'cloud',
     }))
     const newAuthors = authors.map(a => {
         const {fileIndex, ...values} = a
@@ -440,7 +437,6 @@ async function addPhotos(id, files) {
         originalName: f.originalname,
         size: f.size,
         mimeType: f.mimetype,
-        storageType: 'cloud',
         photo: { projectId: id },
     }))
     const results = await db.File.bulkCreate(newFiles, {

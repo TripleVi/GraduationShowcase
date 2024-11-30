@@ -10,7 +10,6 @@ module.exports = {
         original_name: 'report.pdf',
         size: '5000',
         mime_type: 'application/pdf',
-        storage_type: 'cloud',
         created_at: new Date(),
       },
       {
@@ -19,7 +18,6 @@ module.exports = {
         original_name: 'model.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
-        storage_type: 'cloud',
         created_at: new Date(),
       },
       {
@@ -28,7 +26,6 @@ module.exports = {
         original_name: 'app.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
-        storage_type: 'cloud',
         created_at: new Date(),
       },
       {
@@ -37,7 +34,6 @@ module.exports = {
         original_name: 'idea.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
-        storage_type: 'cloud',
         created_at: new Date(),
       },
       {
@@ -46,7 +42,6 @@ module.exports = {
         original_name: 'avatar.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
-        storage_type: 'cloud',
         created_at: new Date(),
       },
       {
@@ -55,7 +50,6 @@ module.exports = {
         original_name: 'avatar2.jpg',
         size: '5000',
         mime_type: 'image/jpeg',
-        storage_type: 'cloud',
         created_at: new Date(),
       },
     ]);

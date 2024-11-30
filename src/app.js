@@ -17,7 +17,7 @@ app.use(cors({
   credentials: true,
 }))
 
-maintenance(app)
+// maintenance(app)
 
 initializeApp({
   credential: cert(serviceAccount),

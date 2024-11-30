@@ -13,14 +13,25 @@ async function getTopics(params) {
     const { m, limit = upperLimit, offset = 0 } = params
     const options = {
         attributes: ['id', 'name'],
+        include: {
+            model: db.Major,
+            attributes: ['id', 'name'],
+            required: true,
+        },
         order: [['createdAt', 'DESC']],
         offset,
         limit: Math.min(limit, upperLimit),
     }
+    const countOptions = {}
     if(m) {
-        options.where = { majorId: m }
+        options.include.where = { id: m }
+        countOptions.where = { majorId: m }
     }
-    const { count, rows } = await db.Topic.findAndCountAll(options)
+    const getPromises = [
+        db.Topic.count(countOptions),
+        db.Topic.findAll(options),
+    ]
+    const [count, rows] = await Promise.all(getPromises)
     return {
         data: rows,
         metadata: {

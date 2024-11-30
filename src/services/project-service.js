@@ -335,16 +335,16 @@ async function updateProject(id, project) {
             )
         }
         const names = currentHashtags.map(h => h.name)
-        for (const h of hashtags) {
-            if(!names.includes(h)) {
+        for (const name of hashtags) {
+            if(!names.includes(name)) {
+                const newHashtag = { name }
                 hashtagPromises.push(
-                    currentProject.createHashtag(h, { transaction })
+                    currentProject.createHashtag(newHashtag, { transaction })
                 )
             }
         }
         await currentProject.update(values, { transaction })
         await Promise.all(hashtagPromises)
-
         await transaction.commit()
         axiosChatbot().post(`/projects/${id}`, { status: "updated" })
     } catch (error) {

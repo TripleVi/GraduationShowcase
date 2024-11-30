@@ -9,7 +9,7 @@ const scheduleOptions = {
 }
 
 function initCleanupTask() {
-    const task = cron.schedule('0 3 * * *', () =>  {
+    const task = cron.schedule('0 20 * * *', () =>  {
         const retainDays = config.backup.database.retainDays
         backupService.removeOldBackups(retainDays)
     }, scheduleOptions)
@@ -19,7 +19,7 @@ function initCleanupTask() {
 
 function initBackupTask() {
     const { hours, interval } = config.backup.database
-    let hour = 3
+    let hour = 20
     if(hours) {
         hour = hours.length == 1 ? hours[0] : hours.join(',')
     }else if(interval) {

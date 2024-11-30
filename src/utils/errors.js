@@ -86,8 +86,13 @@ export const CHAT_IS_PROCESSING = Object.freeze({
 })
 
 // ---------------Photo Errors---------------
-
 export const PHOTO_NOT_EXIST = Object.freeze({
     code: 'PHOTO_NOT_EXIST',
     message: 'Photo does not exist!'
+})
+
+// ---------------Project Errors---------------
+export const PROJECT_TITLE_EXISTS = Object.freeze({
+    code: 'PROJECT_TITLE_EXISTS',
+    message: 'Project title already exists!'
 })

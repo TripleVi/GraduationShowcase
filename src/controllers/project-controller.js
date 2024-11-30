@@ -53,6 +53,9 @@ const createProject = async (req, res) => {
             case 'TOPIC_NOT_EXIST':
                 res.status(409).send(errors.TOPIC_NOT_EXIST)
                 break
+            case 'PROJECT_TITLE_EXISTS':
+                res.status(409).send(errors.PROJECT_TITLE_EXISTS)
+                break
             case 'EMAIL_EXISTS':
                 res.status(400).send(errors.EMAIL_EXISTS)
                 break

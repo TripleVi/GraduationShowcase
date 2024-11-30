@@ -95,13 +95,14 @@ const checkPost = async (req, res, next) => {
     const photoCount = req.files.photos?.length || 0
     const avatarCheck = Array(avatarCount).fill(1)
     const photoCheck = Array(photoCount).fill(1)
+    const currentYear = new Date().getFullYear()
     await checkSchema({
         title: { isString: { bail: true }, trim: true, notEmpty: { bail: true }, custom: { options: validateTitleCustom, bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
         description: { isArray: { options: { min: 1, max: 20 }, bail: true }, custom: { options: validateDescCustom } },
         'description.*.title': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
         'description.*.content': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3 } }, escape: true },
         'description.*.fileIndex': { optional: true, isInt: { options: { min: 0, max: photoCount-1 }, bail: true }, custom: { options: value => !--photoCheck[value] } },
-        year: { isInt: { options: { min: 2009, max: 2150 } } },
+        year: { isInt: { options: { min: 2009, max: currentYear } } },
         videoId: { optional: true, isString: { bail: true }, trim: true, notEmpty: true, escape: true },
         topicId: { isInt: true },
         hashtags: { isArray: { options: { max: 5 }, bail: true }, custom: { options: validateHashtagsCustom } },

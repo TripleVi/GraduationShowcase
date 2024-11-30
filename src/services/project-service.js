@@ -202,6 +202,12 @@ async function addProject(project, files) {
     if(!topic) {
         throw { code: 'TOPIC_NOT_EXIST' }
     }
+    const titleCount = await db.Project.count({
+        where: { title: newProject.title },
+    })
+    if(titleCount) {
+        throw { code: 'PROJECT_TITLE_EXISTS' }
+    }
     const authorEmails = authors.map(a => a.email)
     const count = await db.Author.count({
         where: { email: { [Op.or]: authorEmails } },
@@ -230,9 +236,10 @@ async function addProject(project, files) {
         const createdHashtags = await db.Hashtag
                 .bulkCreate(newHashtags, { transaction })
         createPromises.push(
-            project.addHashtags([...existingHashtags, ...createdHashtags], { 
-                transaction,
-            })
+            project.addHashtags(
+                [...existingHashtags, ...createdHashtags],
+                { transaction },
+            )
         )
         allFiles.forEach(f => f.ref = `projects/${project.id}/${f.filename}`)
         const fileUrls = await storageService.uploadFilesFromLocal(allFiles)

@@ -21,6 +21,7 @@ const typesForFileFields = {
     'report': 'report',
     'avatars': 'image',
     'avatar': 'image',
+    'thumbnail': 'image',
 }
 
 function filename(_, file, cb) {
@@ -85,6 +86,7 @@ function uploadProjectFiles(req, res, next) {
             fields: 1,
         },
     }).fields([
+        { name: 'thumbnail', maxCount: 1 },
         { name: 'photos', maxCount: 20 },
         { name: 'report', maxCount: 1 },
         { name: 'avatars', maxCount: 10 },

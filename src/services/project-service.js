@@ -209,8 +209,9 @@ async function addProject(project, files) {
     if(count) {
         throw { code: 'EMAIL_EXISTS' }
     }
-    const { report, photos, avatars } = files
+    const { thumbnail, report, photos, avatars } = files
     const allFiles = []
+    if(thumbnail) allFiles.push(...thumbnail)
     if(report) allFiles.push(...report)
     if(avatars) allFiles.push(...avatars)
     if(photos) allFiles.push(...photos)
@@ -243,6 +244,11 @@ async function addProject(project, files) {
             mimeType: f.mimetype,
         }))
         let index = 0
+        if(thumbnail) {
+            createPromises.push(
+                project.createThumbnail(newFiles[index++], { transaction })
+            )
+        }
         if(report) {
             createPromises.push(
                 project.createReport(newFiles[index++], { transaction })
@@ -290,7 +296,7 @@ async function addProject(project, files) {
         await project.update({ description: desc }, { transaction })
         await transaction.commit()
 
-        axiosChatbot().post(`/projects/${project.id}`, { status: "created" })
+        // axiosChatbot().post(`/projects/${project.id}`, { status: "created" })
         return project
     } catch (error) {
         await transaction.rollback()
@@ -345,7 +351,7 @@ async function updateProject(id, project) {
         await currentProject.update(values, { transaction })
         await Promise.all(hashtagPromises)
         await transaction.commit()
-        axiosChatbot().post(`/projects/${id}`, { status: "updated" })
+        // axiosChatbot().post(`/projects/${id}`, { status: "updated" })
     } catch (error) {
         await transaction.rollback()
         throw error
@@ -526,8 +532,18 @@ async function removeProject(id) {
                 transaction,
             })
         )
+        // delete comments
+        deletePromises.push(
+            db.Comment.destroy({
+                where: { projectId: id },
+                transaction,
+            })
+        )
         await Promise.all(deletePromises)
         //delete project
+        const { thumbnailId, reportId } = project
+        if(reportId) fileIds.push(reportId)
+        if(thumbnailId) fileIds.push(thumbnailId)
         deletePromises2.push(project.destroy({ transaction }))
         // delete files
         deletePromises2.push(
@@ -537,11 +553,9 @@ async function removeProject(id) {
             })
         )
         await Promise.all(deletePromises2)
-        // delete comment
 
         await transaction.commit()
-
-        axiosChatbot().post(`/projects/${id}`, { status: "deleted" })
+        // axiosChatbot().post(`/projects/${id}`, { status: "deleted" })
     } catch (error) {
         await transaction.rollback()
         throw error

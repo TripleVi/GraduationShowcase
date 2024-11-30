@@ -6,6 +6,7 @@ import mime from 'mime-types'
 
 import db from '../models'
 import * as maintenanceService from './maintenance'
+import * as storageService from './storage-service'
 
 async function getDBBackups(params) {
     const upperLimit = 25
@@ -57,6 +58,8 @@ async function removeBackup(id) {
     }
     const filepath = path.join(process.env.DB_BACKUP_DIR, backup.name)
     fs.unlinkSync(filepath)
+    const fileRef = `backups/${backup.name}`
+    await storageService.deleteFile(fileRef)
     await backup.destroy()
 }
 
@@ -70,6 +73,10 @@ async function addBackupFile(filename) {
         size: stats.size,
         mimeType,
     }
+    values.url = await storageService.uploadFromLocal({
+        path: filepath,
+        ref: `backups/${filename}`,
+    })
     await db.File.create(values)
 }
 

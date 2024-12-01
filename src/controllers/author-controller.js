@@ -1,19 +1,20 @@
 import * as authorService from '../services/author-service'
 import * as errors from '../utils/errors'
 
-const editAuthor = async (req, res) => {
+const editAuthorGroup = async (req, res) => {
     const id = req.params.id
-    const author = req.body
+    const authors = req.body
     try {
-        await authorService.updateAuthor(id, author)
+        console.log(authors)
+        // await authorService.updateAuthorGroup(id, authors)
         res.sendStatus(204)
     } catch (error) {
         switch (error.code) {
-            case 'AUTHOR_NOT_EXIST':
+            case 'PROJECT_NOT_EXIST':
                 res.sendStatus(404)
                 break
-            case 'EMAIL_EXISTS':
-                res.status(409).send(errors.EMAIL_EXISTS)
+            case 'AUTHOR_NOT_EXIST':
+                res.status(409).send(errors.AUTHOR_NOT_EXIST)
                 break
             default:
                 console.log(error)
@@ -60,4 +61,4 @@ const deleteAuthor = async (req, res) => {
     }
 }
 
-export { editAuthor, updateAvatar, deleteAuthor }
+export { editAuthorGroup, updateAvatar, deleteAuthor }

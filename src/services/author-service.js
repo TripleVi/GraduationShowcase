@@ -1,20 +1,35 @@
+import { Op } from 'sequelize'
+
 import db from '../models'
 import * as storageService from './storage-service'
 
-async function updateAuthor(id, author) {
-    const currentAuthor = await db.Author.findByPk(id)
-    if(!currentAuthor) {
+async function updateAuthorGroup(id, authors) {
+    const project = await db.Project.findByPk(id, {
+        attributes: ['id'],
+    })
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    const ids = authors.map(a => a.id)
+    const count = await db.Author.count({
+        where: { id: { [Op.in]: ids } },
+    })
+    if(count != ids.length) {
         throw { code: 'AUTHOR_NOT_EXIST' }
     }
-    if(currentAuthor.email != author.email) {
-        const emailCount = await db.Author.count({
-            where: { email: author.email },
-        })
-        if(emailCount) {
-            throw { code: 'EMAIL_EXISTS' }
-        }
+    // const emails = authors.map(a => a.email)
+    // const results = await db.Author.count({
+    //     where: { email: { [Op.in]: emails } },
+    // })
+    const updatePromises = []
+    for (const { id, ...values } of authors) {
+        updatePromises.push(
+            db.Author.update(values, {
+                where: { id },
+            })
+        )
     }
-    await currentAuthor.update(author)
+    await Promise.all(updatePromises)
 }
 
 async function updateAvatar(id, file) {
@@ -66,4 +81,4 @@ async function deleteAuthor(id) {
     }
 }
 
-export { updateAuthor, updateAvatar, deleteAuthor }
+export { updateAuthorGroup, updateAvatar, deleteAuthor }

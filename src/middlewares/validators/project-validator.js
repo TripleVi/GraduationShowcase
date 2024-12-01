@@ -124,6 +124,29 @@ const checkPost = async (req, res, next) => {
         : res.sendStatus(400)
 }
 
+const checkPost2 = async (req, res, next) => {
+    const photoCount = req.files.photos?.length || 0
+    const avatarCount = req.files.avatars?.length || 0
+    const avatarCheck = Array(avatarCount).fill(1)
+    const photoCheck = Array(photoCount).fill(1)
+    await checkSchema({
+        paragraphIndices: { optional: !photoCount, isArray: { options: { min: photoCount, max: photoCount } } },
+        'paragraphIndices.*': { isInt: { options: { min: 0 }, bail: true }, custom: { options: value => !--avatarCheck[value] } },
+        authorIds: { optional: !avatarCount, isArray: { options: { min: avatarCount, max: avatarCount } } },
+        'authorIds.*': { isInt: { options: { min: 1 }, bail: true }, custom: { options: value => !--photoCheck[value] } },
+    }, ['body']).run(req)
+    const result = validationResult(req)
+    if(!result.isEmpty()) {
+        return res.status(400).send({ errors: result.array() })
+    }
+    const obj = matchedData(req, { locations: ['body'], includeOptionals: true })
+    const objKeys = Object.keys(obj)
+    const fields = new Set([...objKeys, ...Object.keys(req.body)])
+    fields.size === objKeys.length
+        ? next() 
+        : res.sendStatus(400)
+}
+
 const checkPut = async (req, res, next) => {
     await checkSchema({
         title: { isString: { bail: true }, trim: true, notEmpty: { bail: true }, custom: { options: validateTitleCustom, bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
@@ -155,4 +178,4 @@ const checkPut = async (req, res, next) => {
     } 
 }
 
-export { checkGet, checkGetDetail, checkPost, checkPut }
+export { checkGet, checkGetDetail, checkPost, checkPost2, checkPut }

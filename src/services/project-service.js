@@ -437,6 +437,126 @@ async function addAuthors(id, authors, files) {
     })
 }
 
+async function addFiles(id, data, files) {
+    const project = await db.Project.findByPk(id, {
+        attributes: ['id', 'description', 'thumbnailId', 'reportId'],
+    })
+    if(!project) {
+        throw { code: 'PROJECT_NOT_EXIST' }
+    }
+    const { paragraphIndices, authorIds } = data
+    const { thumbnail, report, photos, avatars } = files
+    const allFiles = []
+    const unusedFileIds = []
+    if(thumbnail) allFiles.push(...thumbnail)
+    if(report) allFiles.push(...report)
+    if(photos) {
+        if(Math.max(...paragraphIndices) >= project.description.length-1) {
+            throw { code: 'PARAGRAPH_NOT_EXIST' }
+        }
+        allFiles.push(...photos)
+    }
+    let authors = []
+    if(avatars) {
+        authors = await project.getAuthors({
+            attributes: ['id', 'avatarId'],
+            where: { id: { [Op.in]: authorIds } },
+        })
+        if(authors.length !== authorIds.length) {
+            throw { code: 'AUTHOR_NOT_EXIST' }
+        }
+        allFiles.push(...avatars)
+    }
+    allFiles.forEach(f => f.ref = `projects/${id}/${f.filename}`)
+    const fileUrls = await storageService.uploadFilesFromLocal(allFiles)
+    const newFiles = allFiles.map((f, i) => ({
+        url: fileUrls[i],
+        name: f.filename,
+        originalName: f.originalname,
+        size: f.size,
+        mimeType: f.mimetype,
+    }))
+    const transaction = await db.sequelize.transaction()
+    try {
+        const createdFiles = await db.File.bulkCreate(newFiles, { transaction })
+        const createPromises = []
+        const values = {}
+        let index = 0
+        if(thumbnail) {
+            values.thumbnailId = createdFiles[index++].id
+            if(project.thumbnailId) {
+                unusedFileIds.push(project.thumbnailId)
+            }
+        }
+        if(report) {
+            values.reportId = createdFiles[index++].id
+            if(project.reportId) {
+                unusedFileIds.push(project.reportId)
+            }
+        }
+        if(photos) {
+            const description = [...project.description]
+            const photoIdsToDel = []
+            for (const i of paragraphIndices) {
+                if(description[i].photoId) {
+                    photoIdsToDel.push(description[i].photoId)
+                }
+                createPromises.push(
+                    project.createPhoto(
+                        { fileId: createdFiles[index++].id },
+                        { transaction },
+                    ).then(photo => description[i].photoId = photo.id)
+                )
+            }
+            values.description = description
+            const photosToDel = await db.Photo.findAll({
+                attributes: ['fileId'],
+                where: { id: { [Op.in]: photoIdsToDel } },
+            })
+            unusedFileIds.push(...photosToDel.map(p => p.fileId))
+            createPromises.push(
+                db.Photo.destroy({
+                    where: { id: { [Op.in]: photoIdsToDel } },
+                    transaction,
+                })
+            )
+        }
+        for (const a of authors) {
+            if(a.avatarId) {
+                unusedFileIds.push(a.avatarId)
+            }
+            createPromises.push(
+                a.setAvatar(createdFiles[index++], { transaction })
+            )
+        }
+        if(Object.keys(values).length > 0) {
+            createPromises.push(
+                db.Project.update(values, { where: { id }, transaction })
+            )
+        }
+        await Promise.all(createPromises)
+        if(unusedFileIds.length) {
+            const unusedFiles = await db.File.findAll({
+                attributes: ['name'],
+                where: { id: { [Op.in]: unusedFileIds } },
+            })
+            const fileRefsToDel = unusedFiles.map(f => `projects/${id}/${f.name}`)
+            const deletePromises = [
+                db.File.destroy({
+                    where: { id: { [Op.in]: unusedFileIds } },
+                    transaction,
+                }),
+                storageService.deleteFiles(fileRefsToDel)
+            ]
+            await Promise.all(deletePromises)
+        }
+        await transaction.commit()
+    } catch (error) {
+        await transaction.rollback()
+        throw error
+    }
+}
+
 async function addPhotos(id, files) {
     const project = await db.Project.findByPk(id)
     if(!project) {
@@ -590,4 +710,4 @@ async function removeReaction(id) {
     await project.update(values)
 }
 
-export { getProjects, getProjectDetail, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject, addReaction, removeReaction }
+export { getProjects, getProjectDetail, addProject, updateProject, updateReport, addAuthors, addPhotos, removePhoto, removeProject, addReaction, removeReaction, addFiles }

@@ -82,7 +82,7 @@ function uploadProjectFiles(req, res, next) {
     const upload = multer({
         storage: diskStorage({ filename }),
         limits: {
-            files: 31,
+            files: 32,
             fields: 1,
         },
     }).fields([
@@ -111,6 +111,52 @@ function uploadProjectFiles(req, res, next) {
         }
         try {
             req.body = JSON.parse(req.body.project)
+            next()
+        } catch (error) {
+            res.sendStatus(400)
+        }
+    })
+}
+
+function uploadProjectFiles2(req, res, next) {
+    const upload = multer({
+        storage: diskStorage({ filename }),
+        limits: {
+            files: 32,
+            fields: 2,
+        },
+    }).fields([
+        { name: 'thumbnail', maxCount: 1 },
+        { name: 'photos', maxCount: 20 },
+        { name: 'report', maxCount: 1 },
+        { name: 'avatars', maxCount: 10 },
+    ])
+
+    upload(req, res, err => {
+        if(err) {
+            if(err instanceof MulterError) {
+                const error = handleMulterError(err)
+                return res.status(400).send(error)
+            }
+            console.log(err)
+            return res.sendStatus(500)
+        }
+        const files = []
+        for (const key in req.files) {
+            files.push(...req.files[key])
+        }
+        const error = validateFiles(files)
+        if(error) {
+            return res.status(400).send(error)
+        }
+        try {
+            const { paragraphIndices, authorIds } = req.body
+            if(paragraphIndices) {
+                req.body.paragraphIndices = JSON.parse(paragraphIndices)
+            }
+            if(authorIds) {
+                req.body.authorIds = JSON.parse(authorIds)
+            }
             next()
         } catch (error) {
             res.sendStatus(400)
@@ -257,4 +303,4 @@ function uploadPhotos(req, res, next) {
 
 }
 
-export { uploadProjectFiles, uploadReport, uploadAvatars, uploadAvatar, uploadPhotos }
+export { uploadProjectFiles, uploadProjectFiles2, uploadReport, uploadAvatars, uploadAvatar, uploadPhotos }

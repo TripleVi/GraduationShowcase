@@ -65,6 +65,28 @@ const createProject = async (req, res) => {
     }
 }
 
+const createProjectFiles = async (req, res) => {
+    try {
+        await projectService.addFiles(req.params.id, req.body, req.files)
+        res.sendStatus(204)
+    } catch (error) {
+        console.log(error)
+        switch (error.code) {
+            case 'PROJECT_NOT_EXIST':
+                res.sendStatus(404)
+                break
+            case 'PARAGRAPH_NOT_EXIST':
+                res.status(409).send(errors.PARAGRAPH_NOT_EXIST)
+                break
+            case 'AUTHOR_NOT_EXIST':
+                res.status(409).send(errors.AUTHOR_NOT_EXIST)
+                break
+            default:
+                res.sendStatus(500)
+        }
+    }
+}
+
 const editProject = async (req, res) => {
     const id = req.params.id
     const project = req.body
@@ -228,4 +250,4 @@ const deleteReaction = async (req, res) => {
     }
 }
 
-export { fetchProjects, fetchProjectDetail, createProject, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject, createReaction, deleteReaction }
+export { fetchProjects, fetchProjectDetail, createProject, createProjectFiles, editProject, editReport, createAuthors, createPhotos, deletePhoto, deleteProject, createReaction, deleteReaction }

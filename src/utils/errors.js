@@ -48,11 +48,6 @@ export const TOPIC_HAS_PROJECTS = Object.freeze({
     message: 'Topic contains projects!'
 })
 
-export const PROJECT_NOT_EXIST = Object.freeze({
-    code: 'PROJECT_NOT_EXIST',
-    message: 'Project does not exist!'
-})
-
 export const USER_NOT_EXIST = Object.freeze({
     code: 'USER_NOT_EXIST',
     message: 'User does not exist!'
@@ -92,7 +87,22 @@ export const PHOTO_NOT_EXIST = Object.freeze({
 })
 
 // ---------------Project Errors---------------
+export const PROJECT_NOT_EXIST = Object.freeze({
+    code: 'PROJECT_NOT_EXIST',
+    message: 'Project does not exist!'
+})
+
 export const PROJECT_TITLE_EXISTS = Object.freeze({
     code: 'PROJECT_TITLE_EXISTS',
     message: 'Project title already exists!'
+})
+
+export const PARAGRAPH_NOT_EXIST = Object.freeze({
+    code: 'PARAGRAPH_NOT_EXIST',
+    message: 'Paragraph does not exist!'
+})
+
+export const AUTHOR_NOT_EXIST = Object.freeze({
+    code: 'AUTHOR_NOT_EXIST',
+    message: 'Author does not exist!'
 })

@@ -80,12 +80,6 @@ export const CHAT_IS_PROCESSING = Object.freeze({
     message: 'Previous message is still being processed. Please wait for it to complete!'
 })
 
-// ---------------Photo Errors---------------
-export const PHOTO_NOT_EXIST = Object.freeze({
-    code: 'PHOTO_NOT_EXIST',
-    message: 'Photo does not exist!'
-})
-
 // ---------------Project Errors---------------
 export const PROJECT_NOT_EXIST = Object.freeze({
     code: 'PROJECT_NOT_EXIST',

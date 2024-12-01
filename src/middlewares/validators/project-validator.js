@@ -153,7 +153,6 @@ const checkPut = async (req, res, next) => {
         description: { isArray: { options: { min: 1, max: 20 }, bail: true }, custom: { options: validatePutDescCustom } },
         'description.*.title': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3, max: 250 } }, escape: true },
         'description.*.content': { isString: { bail: true }, trim: true, notEmpty: { bail: true }, isLength: { options: { min: 3 } }, escape: true },
-        'description.*.photoId': { optional: true, isInt: true },
         year: { isInt: { options: { min: 2009, max: 2150 } } },
         topicId: { isInt: true },
         videoId: { isString: { if: value => value !== null, bail: true }, trim: true, notEmpty: { bail: true }, escape: true },

@@ -16,11 +16,17 @@ async function getProjects(params) {
     const upperLimit = 25
     const { m, t, limit=upperLimit, offset=0, search, sort } = params
     let options = {
-        attributes: { exclude: ['description', 'topicId', 'updatedAt'] },
+        attributes: { exclude: ['description', 'topicId', 'thumbnailId', 'reportId', 'updatedAt'] },
         include: [
             {
                 model: db.Topic,
                 attributes: ['id', 'name'],
+                required: true,
+            },
+            {
+                model: db.File,
+                as: 'thumbnail',
+                attributes: ['url'],
                 required: true,
             },
             {
@@ -133,20 +139,17 @@ async function getProjects(params) {
     const metadata = { totalItems }
     const projects = await db.Project.findAll(options)
     const data = projects.map(p => {
-        const topic = p.topic.dataValues
-        const hashtags = p.hashtags.map(h => h.name)
-        return {
-            ...p.dataValues,
-            topic,
-            hashtags,
-        }
+        const { thumbnail, hashtags, createdAt, ...values } = p.get()
+        values.thumbnailUrl = thumbnail.url
+        values.hashtags = hashtags.map(h => h.name)
+        return values
     })
     return { data, metadata }
 }
 
 async function getProjectDetail(id) {
     const project = await db.Project.findByPk(id, {
-        attributes: ['id', 'title', 'description', 'year', 'videoId', 'views', 'likes', 'createdAt'],
+        attributes: ['id', 'title', 'description', 'year', 'videoId', 'views', 'likes'],
         include: [
             {
                 model: db.Hashtag,
@@ -167,21 +170,24 @@ async function getProjectDetail(id) {
                     attributes: ['url'],
                 },
             },
-            {
-                model: db.Photo,
-                attributes: ['id'],
-                include: {
-                    model: db.File,
-                    attributes: ['url'],
-                    required: true,
-                }
-            },
         ]
     })
     if(!project) {
         throw { code: 'PROJECT_NOT_EXIST' }
     }
-    const { hashtags, report, authors, photos, ...data } = project.get()
+    const photoIds = project.description.map(s => s.photoId)
+    const photos = await db.Photo.findAll({
+        attributes: ['id'],
+        include: {
+            model: db.File,
+            attributes: ['url'],
+            required: true,
+        },
+        where: { id: photoIds },
+    })
+    const urls = photos.map(p => p.file.url)
+    const { hashtags, report, authors, ...data } = project.get()
+    data.description.forEach((s, i) => s.photoUrl = urls[i])
     data.hashtags = hashtags.map(h => h.name)
     data.reportUrl = report ? report.url : null
     data.authors = authors.map(a => {
@@ -189,7 +195,6 @@ async function getProjectDetail(id) {
         values.avatarUrl = avatar ? avatar.url : null
         return values
     })
-    data.photos = photos.map(p => ({ id: p.id, url: p.file.url }))
     await project.update({ views: project.views+1 })
     return data
 }

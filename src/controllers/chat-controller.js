@@ -40,7 +40,6 @@ const createChat = async (req, res) => {
     try {
         const result = await chatService.addChat(params)
         const { headers, status, data } = result
-        console.log(headers)
         res.setHeader('Content-Type', headers['content-type'])
         res.setHeader('Connection', headers['connection'])
         res.setHeader('Cache-Control', headers['cache-control'])

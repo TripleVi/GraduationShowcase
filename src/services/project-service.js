@@ -16,7 +16,7 @@ async function getProjects(params) {
     const upperLimit = 25
     const { m, t, limit=upperLimit, offset=0, search, sort } = params
     let options = {
-        attributes: { exclude: ['topicId', 'createdAt', 'updatedAt'] },
+        attributes: { exclude: ['description', 'topicId', 'updatedAt'] },
         include: [
             {
                 model: db.Topic,
@@ -32,7 +32,6 @@ async function getProjects(params) {
         order: [['createdAt', 'DESC']],
         offset,
         limit: Math.min(limit, upperLimit),
-        subQuery: false,
     }
     const countOptions = { distinct: true, where: {}, include: [] }
     if(t) {
@@ -104,7 +103,9 @@ async function getProjects(params) {
                     order: [[literal('title_store + name_score'), 'DESC']],
                     offset: options.offset,
                     limit: options.limit,
+                    subQuery: false,
                 })
+                console.log(projects.length)
                 const ids = projects.map(p => p.id)
                 const temp = options
                 options = {
@@ -130,9 +131,9 @@ async function getProjects(params) {
         }
     }
     const totalItems = await db.Project.count(countOptions)
-    console.log(totalItems)
     const metadata = { totalItems }
     const projects = await db.Project.findAll(options)
+    console.log(projects.length)
     const data = projects.map(p => {
         const topic = p.topic.dataValues
         const hashtags = p.hashtags.map(h => h.name)

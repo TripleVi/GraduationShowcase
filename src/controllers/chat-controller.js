@@ -52,9 +52,11 @@ const createChat = async (req, res) => {
 }
 
 const createMessage = async (req, res) => {
+    const chatId = Number(req.params.id)
+    const userId = req.User.uid
     const params = {
-        userId: req.User.uid,
-        chatId: Number(req.params.id),
+        userId,
+        chatId,
         data: req.body,
     }
     try {

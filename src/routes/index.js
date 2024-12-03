@@ -7,6 +7,7 @@ import commentRouter from './comment-router'
 import settingRouter from './setting-router'
 import backupRouter from './backup-router'
 import chatRouter from './chat-router'
+import statsRouter from './stats-router'
 
 function initRoutes(app) {
     app.use('/api/v1/auth', authRouter)
@@ -18,6 +19,7 @@ function initRoutes(app) {
     app.use('/api/v1/settings', settingRouter)
     app.use('/api/v1/backups', backupRouter)
     app.use('/api/v1/chats', chatRouter)
+    app.use('/api/v1/stats', statsRouter)
 
     app.get('', (_, res) => {
         res.status(200).send("<h1>Greenwich Vietnam's Graduation Showcase API</h1>")

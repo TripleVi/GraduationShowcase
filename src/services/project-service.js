@@ -105,7 +105,6 @@ async function getProjects(params) {
                     limit: options.limit,
                     subQuery: false,
                 })
-                console.log(projects.length)
                 const ids = projects.map(p => p.id)
                 const temp = options
                 options = {
@@ -133,7 +132,6 @@ async function getProjects(params) {
     const totalItems = await db.Project.count(countOptions)
     const metadata = { totalItems }
     const projects = await db.Project.findAll(options)
-    console.log(projects.length)
     const data = projects.map(p => {
         const topic = p.topic.dataValues
         const hashtags = p.hashtags.map(h => h.name)

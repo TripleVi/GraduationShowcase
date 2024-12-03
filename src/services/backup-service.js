@@ -132,6 +132,8 @@ async function restoreBackup(id) {
         if(err) {
             throw err
         }
+        //! process cloud data after restoring db
+        // const projectCount = await db.Project.count()
         await maintenanceService.disableMaintenanceMode()
         console.log('Database backup completed successfully')
     })

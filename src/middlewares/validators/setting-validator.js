@@ -15,8 +15,8 @@ const checkPutDBBackup = async (req, res, next) => {
             throw new Error('Duplicate values')
         } } },
         'hours.*': { isInt: { options: { min: 0, max: 23 } } },
-        interval: { optional: true, isInt: { options: { min: 0 } } },
-        retainDays: { isInt: { options: { min: 0 } } },
+        interval: { optional: true, isInt: { options: { min: 0, max: 23 } } },
+        retainDays: { isInt: { options: { min: 0, max: 90 } } },
     }, ['body']).run(req)
     
     const result = validationResult(req)

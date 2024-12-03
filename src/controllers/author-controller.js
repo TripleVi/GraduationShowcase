@@ -3,10 +3,9 @@ import * as errors from '../utils/errors'
 
 const editAuthorGroup = async (req, res) => {
     const id = req.params.id
-    const authors = req.body
+    const { authors } = req.body
     try {
-        console.log(authors)
-        // await authorService.updateAuthorGroup(id, authors)
+        await authorService.updateAuthorGroup(id, authors)
         res.sendStatus(204)
     } catch (error) {
         switch (error.code) {

@@ -1,5 +1,3 @@
-import { Op } from 'sequelize'
-
 import db from '../models'
 import * as storageService from './storage-service'
 
@@ -10,25 +8,22 @@ async function updateAuthorGroup(id, authors) {
     if(!project) {
         throw { code: 'PROJECT_NOT_EXIST' }
     }
-    const ids = authors.map(a => a.id)
-    const count = await db.Author.count({
-        where: { id: { [Op.in]: ids } },
+    const authorIds = authors.map(a => a.id)
+    const currentAuthors = await project.getAuthors({
+        where: { id: authorIds },
     })
-    if(count != ids.length) {
+    if(currentAuthors.length != authorIds.length) {
         throw { code: 'AUTHOR_NOT_EXIST' }
     }
+    // Check email
     // const emails = authors.map(a => a.email)
-    // const results = await db.Author.count({
-    //     where: { email: { [Op.in]: emails } },
+    // const temp = await db.Author.findAll({
+    //     where: { id: emails },
     // })
-    const updatePromises = []
-    for (const { id, ...values } of authors) {
-        updatePromises.push(
-            db.Author.update(values, {
-                where: { id },
-            })
-        )
-    }
+    const updatePromises = currentAuthors.map((a, i) => {
+        const { id, ...values } = authors[i]
+        return a.update(values)
+    })
     await Promise.all(updatePromises)
 }
 

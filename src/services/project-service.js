@@ -443,7 +443,7 @@ async function addFiles(id, data, files) {
     if(thumbnail) allFiles.push(...thumbnail)
     if(report) allFiles.push(...report)
     if(photos) {
-        if(Math.max(...paragraphIndices) >= project.description.length-1) {
+        if(Math.max(...paragraphIndices) >= project.description.length) {
             throw { code: 'PARAGRAPH_NOT_EXIST' }
         }
         allFiles.push(...photos)

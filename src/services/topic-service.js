@@ -70,7 +70,7 @@ async function addTopic(majorId, topic) {
         throw { code: 'TOPIC_EXISTS' }
     }
     const result = major.createTopic(topic)
-    // axiosChatbot().post(`/topics/${result.id}`, { status: "created" })
+    axiosChatbot().post(`/topics/${result.id}`, { status: "created" })
     return result
 }
 
@@ -106,7 +106,7 @@ async function removeTopic(id) {
         throw { code: 'TOPIC_HAS_PROJECTS' }
     }
     await topic.destroy()
-    // axiosChatbot().post(`/topics/${id}`, { status: "deleted" })
+    axiosChatbot().post(`/topics/${id}`, { status: "deleted" })
 }
 
 export { getTopics, getTopicByName, getTopicById, addTopic, updateTopic, removeTopic }

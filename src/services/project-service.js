@@ -27,7 +27,6 @@ async function getProjects(params) {
                 model: db.File,
                 as: 'thumbnail',
                 attributes: ['url'],
-                required: true,
             },
             {
                 model: db.Hashtag,
@@ -350,7 +349,7 @@ async function updateProject(id, project) {
         await currentProject.update(values, { transaction })
         await Promise.all(hashtagPromises)
         await transaction.commit()
-        axiosChatbot().post(`/projects/${id}`, { status: "updated" })
+        // axiosChatbot().post(`/projects/${id}`, { status: "updated" })
     } catch (error) {
         await transaction.rollback()
         throw error

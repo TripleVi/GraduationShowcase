@@ -22,8 +22,8 @@ router.post('/:id/author-group', verifyJWT, isAdmin, upload.uploadAvatars, proje
 router.put('/:id/author-group', verifyJWT, isAdmin, authorVal.checkPut, authorCtrl.editAuthorGroup)
 // router.post('/:id/photos', verifyJWT, isAdmin, upload.uploadPhotos, projectCtrl.createPhotos)
 // router.delete('/:id/photos/:pid', verifyJWT, isAdmin, projectCtrl.deletePhoto)
-router.post('/:id/reaction', verifyJWT, projectCtrl.createReaction)
-router.delete('/:id/reaction', verifyJWT, projectCtrl.deleteReaction)
+router.post('/:id/reaction', projectCtrl.createReaction)
+router.delete('/:id/reaction', projectCtrl.deleteReaction)
 router.get('/:id/comments', commentVal.checkGet, commentCtrl.fetchOrphanComments)
 router.post('/:id/comments', verifyJWT, commentVal.checkPostComment, commentCtrl.createComment)
 

@@ -310,7 +310,7 @@ async function addProject(project, files) {
         await project.update({ description: desc }, { transaction })
         await transaction.commit()
 
-        // axiosChatbot().post(`/projects/${project.id}`, { status: "created" })
+        axiosChatbot().post(`/projects/${project.id}`, { status: "created" })
         return project
     } catch (error) {
         await transaction.rollback()
@@ -677,7 +677,7 @@ async function removeProject(id) {
         await Promise.all(deletePromises2)
 
         await transaction.commit()
-        // axiosChatbot().post(`/projects/${id}`, { status: "deleted" })
+        axiosChatbot().post(`/projects/${id}`, { status: "deleted" })
     } catch (error) {
         await transaction.rollback()
         throw error

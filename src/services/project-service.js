@@ -139,8 +139,12 @@ async function getProjects(params) {
     const projects = await db.Project.findAll(options)
     const data = projects.map(p => {
         const { thumbnail, hashtags, createdAt, ...values } = p.get()
-        values.thumbnailUrl = thumbnail.url
-        values.hashtags = hashtags.map(h => h.name)
+        if(thumbnail) {
+            values.thumbnailUrl = thumbnail.url
+        }
+        if(hashtags) {
+            values.hashtags = hashtags.map(h => h.name)
+        }
         return values
     })
     return { data, metadata }

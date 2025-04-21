@@ -13,7 +13,11 @@ let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  sequelize = new Sequelize(config);
+  if (env === 'production') {
+    sequelize = new Sequelize('mysql://root:WUXlnFDsvJWsYaXtkxyWDhDRZlqdaPWs@hopper.proxy.rlwy.net:16663/railway', config);
+  } else {
+    sequelize = new Sequelize(config);
+  }
 }
 
 fs

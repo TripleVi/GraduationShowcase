@@ -12,7 +12,7 @@ import initRoutes from './routes'
 const app = express()
 
 app.use(cors({
-  origin: ['http://localhost:3001'],
+  origin: ['http://localhost:3001', 'https://ggshowcase.onrender.com'],
   optionsSuccessStatus: 200,
   credentials: true,
 }))

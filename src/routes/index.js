@@ -16,8 +16,8 @@ function initRoutes(app) {
     app.use('/api/v1/projects', projectRouter)
     app.use('/api/v1/authors', authorRouter)
     app.use('/api/v1/comments', commentRouter)
-    // app.use('/api/v1/settings', settingRouter)
-    // app.use('/api/v1/backups', backupRouter)
+    app.use('/api/v1/settings', settingRouter)
+    app.use('/api/v1/backups', backupRouter)
     // app.use('/api/v1/chats', chatRouter)
     app.use('/api/v1/stats', statsRouter)
 

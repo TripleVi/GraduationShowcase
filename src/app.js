@@ -2,10 +2,10 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import 'dotenv/config'
-// import { initializeApp, cert } from 'firebase-admin/app'
+import { initializeApp, cert } from 'firebase-admin/app'
 
 import initRoutes from './routes'
-// import serviceAccount from '../service-account-key.json'
+import serviceAccount from '../service-account-key.json'
 // import { initCronJobs } from './cronjobs'
 // import { maintenance } from './services/maintenance'
 
@@ -19,10 +19,10 @@ app.use(cors({
 
 // maintenance(app)
 
-// initializeApp({
-//   credential: cert(serviceAccount),
-//   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-// })
+initializeApp({
+  credential: cert(serviceAccount),
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+})
 
 app.use(bodyParser.json())
 
